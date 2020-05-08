@@ -384,10 +384,18 @@ There are some limitations since these programs run in a resource-constrained, s
 ## QA
 
 - Do Solana have an example for a smart contract calling another smart contract ?
+
   ```bash
   Not yet, Solana are currently adding this functionality. Stay tuned
   By the way, you can already read any account's data without calling other programs.
   Contract A can check if account.owner == B
+  ```
+
+- I might need hash functions such as sha2_256 and keccak. And also want to use encoding lib such as [Borsh](https://docs.rs/borsh/0.6.1/borsh/). Are these possible ?
+
+  ```bash
+  If its a rust library then sure!
+  Borsh is a lot slower then casting 😃
   ```
 
 ## Expand your skills with advanced examples
