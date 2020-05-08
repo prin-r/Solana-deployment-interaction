@@ -28,7 +28,7 @@ async function main() {
   // await setValidator();
 
   // verifyAndSetPrice
-  await verifyAndSetPrice();
+  // await verifyAndSetPrice();
 
   console.log('Success');
 }
