@@ -405,6 +405,13 @@ There are some limitations since these programs run in a resource-constrained, s
   Please see https://github.com/solana-labs/example-helloworld#rust-limitations
   ```
 
+- How do I create key value map like in Ethereum such as mapping(string => uint), mapping(uint => uint), .etc ?
+
+  ```bash
+  You can store a map(int => int) or a map(address => any) inside a single account
+  the data has no restrictions of use, so long as your program can serialize / deserialize the information it needs
+  ```
+
 ## Expand your skills with advanced examples
 
 There is lots more to learn; The following examples demonstrate more advanced features like custom errors, advanced account handling, suggestions for data serialization, benchmarking, etc..
