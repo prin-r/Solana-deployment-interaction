@@ -389,6 +389,12 @@ There are some limitations since these programs run in a resource-constrained, s
   Not yet, Solana are currently adding this functionality. Stay tuned
   By the way, you can already read any account's data without calling other programs.
   Contract A can check if account.owner == B
+
+  You don’t need a cross program call
+  Program A can read state from program B in an atomic transaction
+
+  Think of programs as simple functions over a key value store
+  They take a set of key/values, and update a subset of the values
   ```
 
 - I might need hash functions such as sha2_256 and keccak. And also want to use encoding lib such as [Borsh](https://docs.rs/borsh/0.6.1/borsh/). Are these possible ?
@@ -396,6 +402,7 @@ There are some limitations since these programs run in a resource-constrained, s
   ```bash
   If its a rust library then sure!
   Borsh is a lot slower then casting 😃
+  Please see https://github.com/solana-labs/example-helloworld#rust-limitations
   ```
 
 ## Expand your skills with advanced examples
