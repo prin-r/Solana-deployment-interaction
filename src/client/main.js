@@ -1,5 +1,5 @@
 /**
- * Hello world
+ * PriceDB
  *
  * @flow
  */
@@ -10,10 +10,10 @@ import {
   loadProgram,
   setValidator,
   verifyAndSetPrice,
-} from './hello_world';
+} from './pricedb';
 
 async function main() {
-  console.log("Let's say hello to a Solana account...");
+  console.log('Begin interaction with PriceDB program on solana');
 
   // Establish connection to the cluster
   await establishConnection();
