@@ -302,6 +302,7 @@ process_instruction(&program_id, &accounts, &(vec![0, 99, 0, 0, 0, 0, 0, 0, 0]))
 ### Query an account info
 
 This is often used after sending a transaction that causes the account's data to change, so we have to query the account's info which is also contain account's data to see the change.
+
 Example for query info of the account `A5mQgu5daXq6fTbJt8BgMGDg1hgMMzgh9J1F88C8VNJG` on http://devnet.solana.com
 
 ```bash
