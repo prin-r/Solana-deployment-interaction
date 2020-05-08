@@ -412,6 +412,18 @@ There are some limitations since these programs run in a resource-constrained, s
   the data has no restrictions of use, so long as your program can serialize / deserialize the information it needs
   ```
 
+- The account data should not contain dynamic size data structure (array, list, etc). Right?
+
+  ```bash
+  This isn't true actually. You cannot dynamically resize account data but you can pre-allocate the capacity you need. You can store whatever data structures you want in the data. It could be a map, list, struct, etc
+  ```
+
+- So the size of map was limited when I first create the account ?
+
+  ```bash
+  Exactly
+  ```
+
 ## Expand your skills with advanced examples
 
 There is lots more to learn; The following examples demonstrate more advanced features like custom errors, advanced account handling, suggestions for data serialization, benchmarking, etc..
