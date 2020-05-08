@@ -456,6 +456,41 @@ There are some limitations since these programs run in a resource-constrained, s
     That's correct! Every account needs to pay rent
     ```
 
+- Can I rent more space for account's data by transferring more lamports into the account ?
+
+  - ```bash
+    The account balance and the account data capacity are two different things.
+    For example, an account can have 1000 SOL and 0 data capacity.
+    Another account can have 1 SOL and 1KB data capacity.
+    The only relation between account balance and account data capacity is for rent payments.
+    The more data you store, the more expensive it will be and so your account will need a sufficient balance to pay for rent fees.
+    ```
+
+- Can I rent more space for an account or is the space determined only when creating an account and can't be changed?
+
+  - ```bash
+    Can't be changed
+    Realloc is hard once the system program is no longer the owner of the account.
+    We'd need an entirely new mechanism to do that.
+    So your best bet is create a larger account when the current account data is almost full, and then copy over the data.
+    ```
+
+- I received this following error message after I made a transaction.
+  `RangeError [ERR_OUT_OF_RANGE]: The value of "offset" is out of range. It must be >= 0 and <= 1231. Received 1232`
+  I think it's because the calldata I sent was too big.
+  The data that I send with a transaction is 3272 bytes.
+  Can I increase this limit, or should the data I submit for each tx must be limited to 1231 bytes?
+
+  - ```bash
+    You cannot increase this limit but there are workarounds.
+    You can split up the proof into chunks
+    For example let separate your big tx into multiple of smaller txs and then send them one by one
+    This is how we load programs onto the chain
+
+    So you should create an account to accumulate the fragments until it's complete.
+    Then read the proof stored in that account for verification.
+    ```
+
 ## Expand your skills with advanced examples
 
 There is lots more to learn; The following examples demonstrate more advanced features like custom errors, advanced account handling, suggestions for data serialization, benchmarking, etc..
