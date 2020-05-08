@@ -186,6 +186,8 @@ The client then constructs and sends a set validators transaction to the program
 
 For example
 
+javascript client
+
 ```js
 const instruction = new TransactionInstruction({
   keys: [{pubkey: vkPubkey, isSigner: false, isWritable: true}],
@@ -202,6 +204,18 @@ await sendAndConfirmTransaction(
   new Transaction().add(instruction),
   payerAccount,
 );
+```
+
+rust program
+
+```rust
+process_instruction(
+    &program_id,
+    &accounts,
+    &(Command::SetValidator(vec![ValidatorPubkey(pub1), ValidatorPubkey(pub2)]))
+        .try_to_vec()
+        .unwrap(),
+)
 ```
 
 ### Query the Solana account used in the "Hello" transaction
