@@ -397,7 +397,7 @@ There are some limitations since these programs run in a resource-constrained, s
   They take a set of key/values, and update a subset of the values
   ```
 
-- I might need hash functions such as sha2_256 and keccak. And also want to use encoding lib such as [Borsh](https://docs.rs/borsh/0.6.1/borsh/). Are these possible ?
+* I might need hash functions such as sha2_256 and keccak. And also want to use encoding lib such as [Borsh](https://docs.rs/borsh/0.6.1/borsh/). Are these possible ?
 
   ```bash
   If its a rust library then sure!
@@ -405,18 +405,18 @@ There are some limitations since these programs run in a resource-constrained, s
   Please see https://github.com/solana-labs/example-helloworld#rust-limitations
   ```
 
-- How do I create key value map like in Ethereum such as mapping(string => uint), mapping(uint => uint), .etc ?
+* How do I create key value map like in Ethereum such as mapping(string => uint), mapping(uint => uint), .etc ?
 
   ```bash
   You can store a map(int => int) or a map(address => any) inside a single account
   the data has no restrictions of use, so long as your program can serialize / deserialize the information it needs
   ```
 
-- The account data should not contain dynamic size data structure (array, list, etc). Right?
+* The account data should not contain dynamic size data structure (array, list, etc). Right?
 
-  ```bash
-  This isn't true actually. You cannot dynamically resize account data but you can pre-allocate the capacity you need. You can store whatever data structures you want in the data. It could be a map, list, struct, etc
-  ```
+```bash
+This isn't true actually. You cannot dynamically resize account data but you can pre-allocate the capacity you need. You can store whatever data structures you want in the data. It could be a map, list, struct, etc
+```
 
 - So the size of map was limited when I first create the account ?
 
