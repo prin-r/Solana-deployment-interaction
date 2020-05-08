@@ -17,12 +17,12 @@ to build, deploy, and interact with programs on the Solana blockchain.
 
 The project comprises of:
 
-- An on-chain hello world program
-- A client that can send a "hello" to an account and get back the number of times "hello" has been sent
+- An on-chain PriceDB program
+- A client that can send a tx to set validator, set price and also verify proof before set price
 
 ## Table of Contents
 
-- [Hello world on Solana](#hello-world-on-solana)
+- [PriceDB on Solana](#PriceDB-on-solana)
   - [Table of Contents](#table-of-contents)
   - [Quick Start](#quick-start)
     - [Start local Solana cluster](#start-local-solana-cluster)
