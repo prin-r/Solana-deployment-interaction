@@ -37,6 +37,7 @@ The project comprises of:
     - [Establish a connection to the cluster](#establish-a-connection-to-the-cluster)
     - [Load the pricedb on-chain program if not already loaded](#load-the-pricedb-on-chain-program-if-not-already-loaded)
     - [Send a set validators tx](#send-a-set-validators-tx)
+    - [Send a set price tx](#send-a-set-price-tx)
     - [Query the Solana account used in the "Hello" transaction](#query-the-solana-account-used-in-the-%22hello%22-transaction)
   - [Learn about the on-chain program](#learn-about-the-on-chain-program)
     - [Entrypoint](#entrypoint-1)
@@ -216,6 +217,35 @@ process_instruction(
         .try_to_vec()
         .unwrap(),
 )
+```
+
+### Send a set price tx
+
+The client then constructs and sends a set price transaction to the program by calling [`setPrice`](https://github.com/bandprotocol/band-integrations/blob/master/solana/blob/master/src/client/pricedb.js#L211). This function will receive PriceDB's program id, account of validators keeper and bytes instructions. The bytes instruction is a borsh encode of [`Command::SetValidator(Vec<ValidatorPubkey>)`](https://github.com/bandprotocol/band-integrations/blob/master/solana/src/program-rust/src/lib.rs#L65)
+
+For example
+
+javascript client
+
+```js
+const instruction = new TransactionInstruction({
+  keys: [{pubkey: pdbkPubkey, isSigner: false, isWritable: true}],
+  programId,
+  // Set price to be 99, encode with borsh
+  data: Buffer.from('006300000000000000', 'hex'),
+});
+await sendAndConfirmTransaction(
+  'setPrice',
+  connection,
+  new Transaction().add(instruction),
+  payerAccount,
+);
+```
+
+rust program
+
+```rust
+process_instruction(&program_id, &accounts, &(vec![0, 99, 0, 0, 0, 0, 0, 0, 0])).unwrap();
 ```
 
 ### Query the Solana account used in the "Hello" transaction

@@ -206,6 +206,25 @@ export async function loadProgram(): Promise<void> {
 }
 
 /**
+ * Set price
+ */
+export async function setPrice(): Promise<void> {
+  console.log('setPrice for ', pdbkPubkey.toBase58());
+  const instruction = new TransactionInstruction({
+    keys: [{pubkey: pdbkPubkey, isSigner: false, isWritable: true}],
+    programId,
+    // Set price to be 99, encode with borsh
+    data: Buffer.from('006300000000000000', 'hex'),
+  });
+  await sendAndConfirmTransaction(
+    'setPrice',
+    connection,
+    new Transaction().add(instruction),
+    payerAccount,
+  );
+}
+
+/**
  * Set validators
  */
 export async function setValidator(): Promise<void> {
