@@ -347,9 +347,7 @@ pub enum Command {
 
 ### Processing an instruction
 
-Given the inputs to the entrypoint, the result of the instruction are updates to account's lamports and data vectors. In the case of helloworld, the "greeted" account's data holds a 32-bit Little-endian encoded unsigned integer, which gets incremented.
-
-The program does a series of checks to ensure that the instruction is well-formed (the "greeted" account is owned by the program and has sufficient data to hold a 32-bit unsigned integer).
+Given the inputs to the entrypoint, the result of the instruction are updates to account's lamports and data vectors. In the case of pricedb program, the "price keeper" account's data holds a 9-bytes Borsh encoded of enum(u64) and the "validators keeper" account's data holds a 69-bytes Borsh encoded of enum(Vec<[u8;32]>)
 
 The accounts slice may contain the same account in multiple positions, so a Rust `std protects any writable data::cell::RefCell`
 
