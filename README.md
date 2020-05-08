@@ -221,7 +221,7 @@ process_instruction(
 
 ### Send a set price tx
 
-The client then constructs and sends a set price transaction to the program by calling [`setPrice`](https://github.com/bandprotocol/band-integrations/blob/master/solana/blob/master/src/client/pricedb.js#L211). This function will receive PriceDB's program id, account of validators keeper and bytes instructions. The bytes instruction is a borsh encode of [`Command::SetValidator(Vec<ValidatorPubkey>)`](https://github.com/bandprotocol/band-integrations/blob/master/solana/src/program-rust/src/lib.rs#L65)
+The client then constructs and sends a set price transaction to the program by calling [`setPrice`](https://github.com/bandprotocol/band-integrations/blob/master/solana/blob/master/src/client/pricedb.js#L211). This function will receive PriceDB's program id, account of price keeper and bytes instructions. The bytes instruction is a borsh encode of [`SetPrice(Price)`](https://github.com/bandprotocol/band-integrations/blob/master/solana/src/program-rust/src/lib.rs#L65)
 
 For example
 
