@@ -2,7 +2,7 @@
 # Note: This crate must be built using do.sh
 
 [package]
-name = "solana-bpf-helloworld"
+name = "solana-bpf-pricedb"
 version = "0.0.1"
 description = "Example template program written in Rust"
 authors = ["Solana Maintainers <maintainers@solana.com>"]
@@ -19,5 +19,5 @@ borsh = "0.3.0"
 sha3 = "0.8.2"
 
 [lib]
-name = "solana_bpf_helloworld"
+name = "solana_bpf_pricedb"
 crate-type = ["cdylib", "lib"]
