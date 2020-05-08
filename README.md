@@ -466,7 +466,7 @@ There are some limitations since these programs run in a resource-constrained, s
     The more data you store, the more expensive it will be and so your account will need a sufficient balance to pay for rent fees.
     ```
 
-- Can I rent more space for an account or is the space determined only when creating an account and can't be changed?
+- Can I rent more space for an account or the space determined only when creating an account and can't be changed?
 
   - ```bash
     Can't be changed
