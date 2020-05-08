@@ -359,9 +359,9 @@ version = "1.1.3"
 
 [[package]]
 name = "solana-sdk-macro"
-version = "1.1.8"
+version = "1.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8c1699e81c4366590818c3bcd2c05af17de45b5e25f340f3032405d4fa89e163"
+checksum = "f16eea85cbeaae139fa6ca20f8e05022c4a87c271e64ccd5bf296f2692305e6e"
 dependencies = [
  "bs58",
  "proc-macro2",
@@ -377,9 +377,9 @@ checksum = "2d67a5a62ba6e01cb2192ff309324cb4875d0c451d55fe2319433abe7a05a8ee"
 
 [[package]]
 name = "syn"
-version = "1.0.18"
+version = "1.0.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "410a7488c0a728c7ceb4ad59b9567eb4053d02e8cc7f5c0e0eeeb39518369213"
+checksum = "e8e5aa70697bb26ee62214ae3288465ecec0000f05182f039b477001f08f5ae7"
 dependencies = [
  "proc-macro2",
  "quote",
