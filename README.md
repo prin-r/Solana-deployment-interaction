@@ -178,8 +178,8 @@ The client loads the program by calling [`loadProgram`](https://github.com/bandp
 2. Calculates the fees associated with loading the program
 3. Airdrops lamports to a payer account to pay for the load
 4. Loads the program via the Solana web3.js function ['BPFLoader.load'](<[TODO](https://github.com/solana-labs/solana-web3.js/blob/37d57926b9dba05d1ad505d4fd39d061030e2e87/src/bpf-loader.js#L36)>)
-5. Creates a new "price keeper" account that will be used in the "setPrice" transaction and "verifyAndSetPrice" transaction
-6. Creates a new "validator keeper" account that will be used in the "setValidator" transaction and "verifyAndSetPrice" transaction
+5. Creates a new "price keeper" account that will be used in the `setPrice` transaction and `verifyAndSetPrice` transaction
+6. Creates a new "validator keeper" account that will be used in the `setValidator` transaction and `verifyAndSetPrice` transaction
 7. Records the [public key](https://github.com/solana-labs/solana-web3.js/blob/37d57926b9dba05d1ad505d4fd39d061030e2e87/src/publickey.js#L10) of both the loaded helloworld program and the "greeter" account in a config file. Repeated calls to the client will refer to the same loaded program and "greeter" account. (To force the reload of the program issue `npm clean:store`)
 
 ### Send a set validators tx
