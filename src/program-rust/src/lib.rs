@@ -77,11 +77,11 @@ entrypoint!(process_instruction);
 
 // Program entrypoint's implementation
 fn process_instruction<'a>(
-    _program_id: &Pubkey, // Public key of the account the hello world program was loaded into
-    accounts: &'a [AccountInfo<'a>], // The account to say hello to
-    instruction_data: &[u8], // Ignored, all helloworld instructions are hellos
+    _program_id: &Pubkey, // Public key of the account the pricedb program was loaded into
+    accounts: &'a [AccountInfo<'a>], // The accounts to be interacted with
+    instruction_data: &[u8], // borsh encoded of Command
 ) -> ProgramResult {
-    info!("Helloworld Rust program entrypoint");
+    info!("Begin pricedb Rust program entrypoint");
 
     let command =
         Command::try_from_slice(instruction_data).map_err(|_| ProgramError::CustomError(999))?;
