@@ -438,7 +438,22 @@ There are some limitations since these programs run in a resource-constrained, s
 
   - ```bash
     You can try using serde to serialize your data structures but so far we've been manually laying out data.
-    You can look at this example: https://github.com/solana-labs/example-messagefeed/blob/v1.1/bpf-rust-programs/prediction-poll/program_data/src/collection.rs
+    You can look at this example:
+    https://github.com/solana-labs/example-messagefeed/blob/v1.1/bpf-rust-programs/prediction-poll/program_data/src/collection.rs
+    From the example, you should use BufferLayout.blob(32, property) for a single Pubkey allocation
+    ```
+
+- What is lamports ? Is it like wei in Ethereum ?
+
+  - ```bash
+    Exactly
+    The balance is measured in lamports. 1 lamport = 0.000000001 SOL
+    ```
+
+- I Have to put Sol into the account reserve space for account's data, right?.
+
+  - ```bash
+    That's correct! Every account needs to pay rent
     ```
 
 ## Expand your skills with advanced examples
