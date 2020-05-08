@@ -167,7 +167,7 @@ The [client's entrypoint](https://github.com/solana-labs/example-helloworld/blob
 
 The client establishes a connection with the client by calling [`establishConnection`](https://github.com/solana-labs/example-helloworld/blob/e936ab42e168f1939df0164d5996adf9ca635bd0/src/client/hello_world.js#L45).
 
-### Load the helloworld on-chain program if not already loaded
+### Load the pricedb on-chain program if not already loaded
 
 The process of loading a program on the cluster includes storing the shared object's bytes in a Solana account's data vector and marking the account executable.
 
