@@ -183,6 +183,25 @@ The client loads the program by calling [`loadProgram`](https://github.com/solan
 ### Send a set validators tx
 
 The client then constructs and sends a set validators transaction to the program by calling [`setValidator`](https://github.com/bandprotocol/band-integrations/blob/master/solana/blob/master/src/client/pricedb.js#L211). This function will receive PriceDB's program id, account of validators keeper and bytes instructions. The bytes instruction is a borsh encode of [`Command::SetValidator(Vec<ValidatorPubkey>)`](https://github.com/bandprotocol/band-integrations/blob/master/solana/src/program-rust/src/lib.rs#L68)
+For example
+
+```js
+const instruction = new TransactionInstruction({
+  keys: [{pubkey: vkPubkey, isSigner: false, isWritable: true}],
+  programId,
+  // Borsh encode of ValidatorKeeper that contain pubkeys [1;32] and [2;32]
+  data: Buffer.from(
+    '010200000001010101010101010101010101010101010101010101010101010101010101010202020202020202020202020202020202020202020202020202020202020202',
+    'hex',
+  ),
+});
+await sendAndConfirmTransaction(
+  'setValidator',
+  connection,
+  new Transaction().add(instruction),
+  payerAccount,
+);
+```
 
 ### Query the Solana account used in the "Hello" transaction
 
