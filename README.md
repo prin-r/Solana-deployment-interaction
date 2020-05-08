@@ -38,7 +38,6 @@ The project comprises of:
     - [Load the pricedb on-chain program if not already loaded](#load-the-pricedb-on-chain-program-if-not-already-loaded)
     - [Send a set validators tx](#send-a-set-validators-tx)
     - [Send a set price tx](#send-a-set-price-tx)
-    - [Query the Solana account used in the transaction](#query-the-solana-account-used-in-the-transaction)
     - [Query an account info](#query-an-account-info)
   - [Learn about the on-chain program](#learn-about-the-on-chain-program)
     - [Entrypoint](#entrypoint-1)
@@ -300,9 +299,13 @@ rust program
 process_instruction(&program_id, &accounts, &(vec![0, 99, 0, 0, 0, 0, 0, 0, 0])).unwrap();
 ```
 
-### Query the Solana account used in the "Hello" transaction
+### Query an account info
 
-Each time the client says "Hello" to an account, the program increments a numerical count in the "greeter" account's data. The client queries the "greeter" account's data to discover the current number of times the account has been greeted by calling [`reportHellos`](https://github.com/solana-labs/example-helloworld/blob/e936ab42e168f1939df0164d5996adf9ca635bd0/src/client/hello_world.js#L138.)
+Example for query info of the account `A5mQgu5daXq6fTbJt8BgMGDg1hgMMzgh9J1F88C8VNJG` on http://devnet.solana.com
+
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0", "id":1, "method":"getAccountInfo", "params":["A5mQgu5daXq6fTbJt8BgMGDg1hgMMzgh9J1F88C8VNJG"]}' http://devnet.solana.com
+```
 
 ## Learn about the on-chain program
 
