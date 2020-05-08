@@ -425,6 +425,22 @@ There are some limitations since these programs run in a resource-constrained, s
     Exactly
     ```
 
+- How to create BufferLayout for
+
+  ```rust
+  pub enum State {
+      Unset,
+      Validators(Vec<Pubkey>),
+  }
+  ```
+
+  I just want to reserve a space for two validators.
+
+  - ```bash
+    You can try using serde to serialize your data structures but so far we've been manually laying out data.
+    You can look at this example: https://github.com/solana-labs/example-messagefeed/blob/v1.1/bpf-rust-programs/prediction-poll/program_data/src/collection.rs
+    ```
+
 ## Expand your skills with advanced examples
 
 There is lots more to learn; The following examples demonstrate more advanced features like custom errors, advanced account handling, suggestions for data serialization, benchmarking, etc..
