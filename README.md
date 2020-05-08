@@ -383,6 +383,11 @@ There are some limitations since these programs run in a resource-constrained, s
 
 ## QA
 
+- Do Solana have an example for a smart contract calling another smart contract ?
+  ```bash
+  Not yet, Solana are currently adding this functionality. Stay tuned
+  ```
+
 ## Expand your skills with advanced examples
 
 There is lots more to learn; The following examples demonstrate more advanced features like custom errors, advanced account handling, suggestions for data serialization, benchmarking, etc..
