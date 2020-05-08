@@ -386,7 +386,8 @@ There are some limitations since these programs run in a resource-constrained, s
 - Do Solana have an example for a smart contract calling another smart contract ?
   ```bash
   Not yet, Solana are currently adding this functionality. Stay tuned
-  By the way, you can already read any account's data without calling other programs. Contract A can check if account.owner == B
+  By the way, you can already read any account's data without calling other programs.
+  Contract A can check if account.owner == B
   ```
 
 ## Expand your skills with advanced examples
