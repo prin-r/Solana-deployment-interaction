@@ -387,6 +387,7 @@ There are some limitations since these programs run in a resource-constrained, s
 
 There is lots more to learn; The following examples demonstrate more advanced features like custom errors, advanced account handling, suggestions for data serialization, benchmarking, etc..
 
+- [hello-world](https://github.com/solana-labs/example-helloworld#learn-about-solana)
 - [ERC-20-like Token](https://github.com/solana-labs/example-token)
 - [TicTacToe](https://github.com/solana-labs/example-tictactoe)
 - [MessageFeed](https://github.com/solana-labs/example-messagefeed)
