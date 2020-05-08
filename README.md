@@ -18,7 +18,7 @@ to build, deploy, and interact with programs on the Solana blockchain.
 The project comprises of:
 
 - An on-chain PriceDB program
-- A client that can send a tx to set validator, set price and also verify proof before set price
+- A client that can send a tx to set validators, set price and also verify proof before set price
 
 ## Table of Contents
 
@@ -36,7 +36,7 @@ The project comprises of:
     - [Entrypoint](#entrypoint)
     - [Establish a connection to the cluster](#establish-a-connection-to-the-cluster)
     - [Load the pricedb on-chain program if not already loaded](#load-the-pricedb-on-chain-program-if-not-already-loaded)
-    - [Send a "Hello" transaction to the on-chain program](#send-a-%22hello%22-transaction-to-the-on-chain-program)
+    - [Send a set validators tx](#send-a-set-validators-tx)
     - [Query the Solana account used in the "Hello" transaction](#query-the-solana-account-used-in-the-%22hello%22-transaction)
   - [Learn about the on-chain program](#learn-about-the-on-chain-program)
     - [Entrypoint](#entrypoint-1)
@@ -180,9 +180,9 @@ The client loads the program by calling [`loadProgram`](https://github.com/solan
 - Creates a new "greeter" account that will be used in the "Hello" transaction
 - Records the [public key](https://github.com/solana-labs/solana-web3.js/blob/37d57926b9dba05d1ad505d4fd39d061030e2e87/src/publickey.js#L10) of both the loaded helloworld program and the "greeter" account in a config file. Repeated calls to the client will refer to the same loaded program and "greeter" account. (To force the reload of the program issue `npm clean:store`)
 
-### Send a "Hello" transaction to the on-chain program
+### Send a set validators tx
 
-The client then constructs and sends a "Hello" transaction to the program by calling [`sayHello`](https://github.com/solana-labs/example-helloworld/blob/e936ab42e168f1939df0164d5996adf9ca635bd0/src/client/hello_world.js#L121). The transaction contains a single very simple instruction that primarily caries the public key of the helloworld program account to call and the "greeter" account to which the client wishes to say "Hello" to.
+The client then constructs and sends a set validators transaction to the program by calling [`setValidator`](https://github.com/prin-r/Solana-deployment-interaction/blob/master/src/client/pricedb.js#L211). The transaction contains a single very simple instruction that primarily caries the public key of the helloworld program account to call and the "greeter" account to which the client wishes to say "Hello" to.
 
 ### Query the Solana account used in the "Hello" transaction
 
