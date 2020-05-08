@@ -1,10 +1,10 @@
 {
-  "name": "helloworld",
+  "name": "bridge-and-pricedb-example",
   "version": "0.0.1",
   "description": "",
   "repository": {
     "type": "git",
-    "url": "https://github.com/solana-labs/example-helloworld"
+    "url": "https://github.com/prin-r/Solana-deployment-interaction"
   },
   "keywords": [],
   "author": "",
