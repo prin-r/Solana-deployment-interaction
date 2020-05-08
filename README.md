@@ -389,17 +389,12 @@ There are some limitations since these programs run in a resource-constrained, s
     Not yet, Solana are currently adding this functionality. Stay tuned
     By the way, you can already read any account's data without calling other programs.
     Contract A can check if account.owner == B
+    You don’t need a cross program call
+    Program A can read state from program B in an atomic transaction
+
+    Think of programs as simple functions over a key value store
+    They take a set of key/values, and update a subset of the values
     ```
-
-  You don’t need a cross program call
-  Program A can read state from program B in an atomic transaction
-
-  Think of programs as simple functions over a key value store
-  They take a set of key/values, and update a subset of the values
-
-  ```
-
-  ```
 
 - I might need hash functions such as sha2_256 and keccak. And also want to use encoding lib such as [Borsh](https://docs.rs/borsh/0.6.1/borsh/). Are these possible ?
 
@@ -409,10 +404,6 @@ There are some limitations since these programs run in a resource-constrained, s
     Please see https://github.com/solana-labs/example-helloworld#rust-limitations
     ```
 
-  ```
-
-  ```
-
 - How do I create key value map like in Ethereum such as mapping(string => uint), mapping(uint => uint), .etc ?
 
   - ```bash
@@ -420,29 +411,19 @@ There are some limitations since these programs run in a resource-constrained, s
     the data has no restrictions of use, so long as your program can serialize / deserialize the information it needs
     ```
 
-  ```
-
-  ```
-
 - The account data should not contain dynamic size data structure (array, list, etc). Right?
 
   - ```bash
-    This isn't true actually. You cannot dynamically resize account data but you can pre-allocate the capacity you need. You can store whatever data structures you want in the data. It could be a map, list, struct, etc
+    This isn't true actually.
+    You cannot dynamically resize account data but you can pre-allocate the capacity you need.
+    You can store whatever data structures you want in the data. It could be a map, list, struct, etc
     ```
-
-  ```
-
-  ```
 
 - So the size of map was limited when I first create the account ?
 
   - ```bash
     Exactly
     ```
-
-  ```
-
-  ```
 
 ## Expand your skills with advanced examples
 
