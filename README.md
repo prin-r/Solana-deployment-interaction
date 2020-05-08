@@ -108,6 +108,28 @@ $ npm run build:program-rust
 $ npm run build:program-c
 ```
 
+## Pointing to a public Solana cluster
+
+Solana maintains three public clusters:
+
+- `devnet` - Development cluster with airdrops enabled
+- `testnet` - Tour De Sol test cluster without airdrops enabled
+- `mainnet-beta` - Main cluster
+
+Use npm scripts to configure which cluster.
+
+To point to `devnet`:
+
+```bash
+$ npm run cluster:devnet
+```
+
+To point back to the local cluster:
+
+```bash
+$ npm run cluster:localnet
+```
+
 ### Run the client
 
 ```bash
@@ -342,28 +364,6 @@ There are some limitations since these programs run in a resource-constrained, s
 - String formating should be avoided since it is also computationaly expensive
 - No support for `println!`, `print!`, the Solana SDK helpers in `src/log.rs` should be used instead
 - The runtime enforces a limit on the number of instructions a program can execute during the processing of one instruction
-
-## Pointing to a public Solana cluster
-
-Solana maintains three public clusters:
-
-- `devnet` - Development cluster with airdrops enabled
-- `testnet` - Tour De Sol test cluster without airdrops enabled
-- `mainnet-beta` - Main cluster
-
-Use npm scripts to configure which cluster.
-
-To point to `devnet`:
-
-```bash
-$ npm run cluster:devnet
-```
-
-To point back to the local cluster:
-
-```bash
-$ npm run cluster:localnet
-```
 
 ## Expand your skills with advanced examples
 
