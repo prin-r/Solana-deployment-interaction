@@ -311,7 +311,7 @@ curl -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0", "id":1, "
 
 ## Learn about the on-chain program
 
-The [on-chain helloworld program](src/program/Cargo.toml) is a Rust program compiled to [Berkley Packet Format (BPF)](https://en.wikipedia.org/wiki/Berkeley_Packet_Filter) and stored as an [Executable and Linkable Format (ELF) shared object](https://en.wikipedia.org/wiki/Executable_and_Linkable_Format).
+The [on-chain pricedb program](src/program/Cargo.toml) is a Rust program compiled to [Berkley Packet Format (BPF)](https://en.wikipedia.org/wiki/Berkeley_Packet_Filter) and stored as an [Executable and Linkable Format (ELF) shared object](https://en.wikipedia.org/wiki/Executable_and_Linkable_Format).
 
 The program is written using:
 
@@ -319,7 +319,7 @@ The program is written using:
 
 ### Entrypoint
 
-The program's [entrypoint](https://github.com/solana-labs/example-helloworld/blob/6508bdb54c4d7f60747263b4274283fbddfabffe/src/program/src/lib.rs#L12) takes three parameters:
+The program's [entrypoint](https://github.com/bandprotocol/band-integrations/blob/master/solana/src/program-rust/src/lib.rs#L79) takes three parameters:
 
 ```rust
 fn process_instruction<'a>(
@@ -331,7 +331,19 @@ fn process_instruction<'a>(
 
 - `program_id` is the public key of the currently executing program. The same program can be uploaded to the cluster under different accounts, and a program can use `program_id` to determine which instance of the program is currently executing.
 - `accounts` is a slice of [`Account Info's](https://github.com/solana-labs/solana/blob/b4e00275b2da6028cc839a79cdc4453d4c9aca13/sdk/src/account_info.rs#L10) representing each account included in the instruction being processed.
-- `_instruction_data` is a data vector containing the [data passed as part of the instruction](https://github.com/solana-labs/solana-web3.js/blob/37d57926b9dba05d1ad505d4fd39d061030e2e87/src/transaction.js#L46). In the case of helloworld no instruction data is passed and thus ignored (all instructions are treated as a "Hello" instruction). Typically the instruction data would contain information about what kind of command the program should process and details about that particular command.
+- `_instruction_data` is a data vector containing the [data passed as part of the instruction](https://github.com/solana-labs/solana-web3.js/blob/37d57926b9dba05d1ad505d4fd39d061030e2e87/src/transaction.js#L46). In the case of pricedb the instruction data will be borsh encode of enum [Command](https://github.com/bandprotocol/band-integrations/blob/master/solana/src/program-rust/src/lib.rs#L63)
+
+```rust
+pub enum Command {
+    // account 0: PriceDBKeeper account
+    SetPrice(Price),
+    // account 0: ValidatorKeeper account
+    SetValidator(Vec<ValidatorPubkey>),
+    // account 0: PriceDBKeeper account
+    // account 1: ValidatorKeeper account
+    VerifyAndSetPrice(Vec<u8>),
+}
+```
 
 ### Processing an instruction
 
