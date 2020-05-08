@@ -56,10 +56,10 @@ The following dependencies are required to build and run this example,
 depending on your OS, they may already be installed:
 
 ```bash
-$ node --version
+$ node --version # must be 11+
 $ npm --version
 $ docker -v
-$ wget --version
+$ wget --version # If you are using mac, please also install wget
 $ rustup --version
 $ rustc --version
 $ cargo --version
@@ -380,6 +380,8 @@ There are some limitations since these programs run in a resource-constrained, s
 - String formating should be avoided since it is also computationaly expensive
 - No support for `println!`, `print!`, the Solana SDK helpers in `src/log.rs` should be used instead
 - The runtime enforces a limit on the number of instructions a program can execute during the processing of one instruction
+
+## QA
 
 ## Expand your skills with advanced examples
 
