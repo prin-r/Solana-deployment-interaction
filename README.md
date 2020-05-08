@@ -162,24 +162,25 @@ The client in this example is written in JavaScript using:
 
 ### Entrypoint
 
-The [client's entrypoint](https://github.com/solana-labs/example-helloworld/blob/e936ab42e168f1939df0164d5996adf9ca635bd0/src/client/main.js#L14) does four things
+The [client's entrypoint](https://github.com/bandprotocol/band-integrations/blob/master/solana/blob/master/src/client/main.js#L14) does four things
 
 ### Establish a connection to the cluster
 
-The client establishes a connection with the client by calling [`establishConnection`](https://github.com/solana-labs/example-helloworld/blob/e936ab42e168f1939df0164d5996adf9ca635bd0/src/client/hello_world.js#L45).
+The client establishes a connection with the client by calling [`establishConnection`](https://github.com/bandprotocol/band-integrations/blob/master/solana/blob/master/src/client/pricedb.js#L45).
 
 ### Load the pricedb on-chain program if not already loaded
 
 The process of loading a program on the cluster includes storing the shared object's bytes in a Solana account's data vector and marking the account executable.
 
-The client loads the program by calling [`loadProgram`](https://github.com/solana-labs/example-helloworld/blob/e936ab42e168f1939df0164d5996adf9ca635bd0/src/client/hello_world.js#L54). The first time `loadProgram` is called the client:
+The client loads the program by calling [`loadProgram`](https://github.com/bandprotocol/band-integrations/blob/master/solana/blob/master/src/client/pricedb.js#L54). The first time `loadProgram` is called the client:
 
-- Read the shared object from the file system
-- Calculates the fees associated with loading the program
-- Airdrops lamports to a payer account to pay for the load
-- Loads the program via the Solana web3.js function ['BPFLoader.load'](<[TODO](https://github.com/solana-labs/solana-web3.js/blob/37d57926b9dba05d1ad505d4fd39d061030e2e87/src/bpf-loader.js#L36)>)
-- Creates a new "greeter" account that will be used in the "Hello" transaction
-- Records the [public key](https://github.com/solana-labs/solana-web3.js/blob/37d57926b9dba05d1ad505d4fd39d061030e2e87/src/publickey.js#L10) of both the loaded helloworld program and the "greeter" account in a config file. Repeated calls to the client will refer to the same loaded program and "greeter" account. (To force the reload of the program issue `npm clean:store`)
+1. Read the shared object from the file system
+2. Calculates the fees associated with loading the program
+3. Airdrops lamports to a payer account to pay for the load
+4. Loads the program via the Solana web3.js function ['BPFLoader.load'](<[TODO](https://github.com/solana-labs/solana-web3.js/blob/37d57926b9dba05d1ad505d4fd39d061030e2e87/src/bpf-loader.js#L36)>)
+5. Creates a new "price keeper" account that will be used in the "setPrice" transaction and "verifyAndSetPrice" transaction
+6. Creates a new "validator keeper" account that will be used in the "setValidator" transaction and "verifyAndSetPrice" transaction
+7. Records the [public key](https://github.com/solana-labs/solana-web3.js/blob/37d57926b9dba05d1ad505d4fd39d061030e2e87/src/publickey.js#L10) of both the loaded helloworld program and the "greeter" account in a config file. Repeated calls to the client will refer to the same loaded program and "greeter" account. (To force the reload of the program issue `npm clean:store`)
 
 ### Send a set validators tx
 
