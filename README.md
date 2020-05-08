@@ -114,18 +114,46 @@ $ npm run build:program-c
 $ npm run start
 ```
 
-### Expected output
+### All expected outputs
 
 Public key values will differ:
 
+Set Price
+
 ```bash
-Lets say hello to a Solana account...
-Connection to cluster established: http://localhost:8899 { solana-core: 1.1.2 }
-Loading hello world program...
-Program loaded to account 47bZX1D1tdmw3KWTo5MfBrAwwHBJQQzQL4VnNGT7HtyQ
-Creating account Eys1jdLHdZ2AE56QAKpfadbjziMZ6NAvpL7qsdtM6sbk to say hello to
-Saying hello to Eys1jdLHdZ2AE56QAKpfadbjziMZ6NAvpL7qsdtM6sbk
-Eys1jdLHdZ2AE56QAKpfadbjziMZ6NAvpL7qsdtM6sbk has been greeted 1 times
+Begin interaction with PriceDB program on solana
+Connection to cluster established: http://devnet.solana.com { 'solana-core': '1.1.9 [channel=unknown commit=unknown]' }
+9
+69
+Using account H13mq76MTDVZfq6ndDfGL9tG3PpJGgmkVZUh7CZr2KLq containing 0.6543296 Sol to pay for fees
+Program already loaded to account 3Kuo1W2EXzfQP212B6QBVqxzUdDQ2JCFamNJVAkF2NF1
+setPrice for  A5mQgu5daXq6fTbJt8BgMGDg1hgMMzgh9J1F88C8VNJG
+Success
+```
+
+Set Validator
+
+```bash
+Begin interaction with PriceDB program on solana
+Connection to cluster established: http://devnet.solana.com { 'solana-core': '1.1.9 [channel=unknown commit=unknown]' }
+9
+69
+Using account H13mq76MTDVZfq6ndDfGL9tG3PpJGgmkVZUh7CZr2KLq containing 0.6543296 Sol to pay for fees
+Program already loaded to account 3Kuo1W2EXzfQP212B6QBVqxzUdDQ2JCFamNJVAkF2NF1
+setValidator for  AMtJgjNenSPG1tcJPuGLysZGQrt3nYGrxEnRnWbNSv5B
+Success
+```
+
+Verify and set price
+
+```bash
+Begin interaction with PriceDB program on solana
+Connection to cluster established: http://devnet.solana.com { 'solana-core': '1.1.9 [channel=unknown commit=unknown]' }
+9
+69
+Using account FhL9EiPG5UM2WGeppGPYyNgCkSdi8QtY1DxNiEggxWor containing 0.6543296 Sol to pay for fees
+Program already loaded to account BT8LW6MtbtZTSFHkqwQ7upFmQtfE3F7ttjxeMeE4uvtF
+Verify and set price for  6KjsLku1BmM8PC2zTCvC46dXjLU83iVfBvqvHxEY9eR9  and  AMtJgjNenSPG1tcJPuGLysZGQrt3nYGrxEnRnWbNSv5B
 Success
 ```
 
@@ -180,7 +208,7 @@ The client loads the program by calling [`loadProgram`](https://github.com/bandp
 4. Loads the program via the Solana web3.js function ['BPFLoader.load'](<[TODO](https://github.com/solana-labs/solana-web3.js/blob/37d57926b9dba05d1ad505d4fd39d061030e2e87/src/bpf-loader.js#L36)>)
 5. Creates a new "price keeper" account that will be used in the `setPrice` transaction and `verifyAndSetPrice` transaction
 6. Creates a new "validator keeper" account that will be used in the `setValidator` transaction and `verifyAndSetPrice` transaction
-7. Records the [public key](https://github.com/solana-labs/solana-web3.js/blob/37d57926b9dba05d1ad505d4fd39d061030e2e87/src/publickey.js#L10) of both the loaded helloworld program and the "greeter" account in a config file. Repeated calls to the client will refer to the same loaded program and "greeter" account. (To force the reload of the program issue `npm clean:store`)
+7. Records the [public key](https://github.com/solana-labs/solana-web3.js/blob/37d57926b9dba05d1ad505d4fd39d061030e2e87/src/publickey.js#L10) of both the loaded `pricedb` program, the `price keeper` account and the `validator keeper` account in a config file. Repeated calls to the client will refer to the same loaded program and "greeter" account. (To force the reload of the program issue `npm clean:store`)
 
 ### Send a set validators tx
 
