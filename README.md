@@ -202,9 +202,9 @@ The program's [entrypoint](https://github.com/solana-labs/example-helloworld/blo
 
 ```rust
 fn process_instruction<'a>(
-    program_id: &Pubkey, // Public key of the account the hello world program was loaded into
-    accounts: &'a [AccountInfo<'a>], // The account to say hello to
-    _instruction_data: &[u8], // Ignored, all helloworld instructions are hellos
+    _program_id: &Pubkey, // Public key of the account the pricedb program was loaded into
+    accounts: &'a [AccountInfo<'a>], // The accounts to be interacted with
+    instruction_data: &[u8], // borsh encoded of Command
 ) -> ProgramResult {
 ```
 
