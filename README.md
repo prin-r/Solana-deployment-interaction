@@ -459,7 +459,7 @@ There are some limitations since these programs run in a resource-constrained, s
 - Can I rent more space for account's data by transferring more lamports into the account ?
 
   - ```bash
-    The account balance and the account data capacity are two different things.
+    Nop, because the account balance and the account data capacity are two different things.
     For example, an account can have 1000 SOL and 0 data capacity.
     Another account can have 1 SOL and 1KB data capacity.
     The only relation between account balance and account data capacity is for rent payments.
