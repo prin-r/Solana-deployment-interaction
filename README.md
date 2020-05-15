@@ -1,3 +1,32 @@
+# Band Protocol's Solana Integration
+
+image
+
+Band Protocol is a secure, blockchain-agnostic, decentralized oracle ([more detail here](https://docs.bandprotocol.com)). It features a blockchain of its own (BandChain) that does the heavy-lifting job of pulling data from external sources, aggregating all the results, and creating a verifiable proof of data integrity to be used in other blockchain applications -- all with a secure crypto-economic guarantee for the data correctness and availability.
+
+With Band Protocol, any developer who needs access to external data feed can query data from a number of built-in [📜 Data Oracle Scripts](http://scan-master.surge.sh/oracle-scripts). In this walkthrough we'll be working with the [📈 Crypto Price Script](http://scan-master.surge.sh/oracle-script/1).
+
+## Getting Started
+
+In this repository we've implemented a PoC of the integration of Band Protocol into Solana's blockchain stack. We will be walking you through a step-by-step instruction that will show you:
+
+- ✅ How Band Protocol works
+- ✅ How to select, preview, and request oracle data from BandChain
+- ✅ How to implement a bridge that takes data and verifies data integrity from BandChain using band_bridge
+
+#### ⚠️ Warning: this repository serves strictly as a PoC implementation and example guide on how to use Band Protocol oracle in Solana stack. A more complete, production ready versions of the pallets are under development and will soon be updated here.
+
+## How Band Protocol Works with Solana
+
+image
+
+1. The frontend of decentralized application (dApp) sends a request to BandChain and specify the Data Oracle Script it needs to make a query to.
+2. The Data Oracle Script contains information that BandChain validator nodes needs to fetch the data, such as data sources, aggregation method, and the cost associated with the query
+3. A randomized set of validators is then selected to query the data from the sources.
+4. The results are then aggregated and recorded on the BandChain, making them available for dApp to use.
+5. The dApp fetches the data and proof of validity from BandChain
+6. The data and proof are batched with other function call parameters. The oracle data is then used in the callable function code in trustable and verifiable manner.
+
 <p align="center">
   <a href="https://solana.com">
     <img alt="Solana" src="https://i.imgur.com/OMnvVEz.png" width="250" />
