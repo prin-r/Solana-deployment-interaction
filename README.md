@@ -1,6 +1,6 @@
 # Band Protocol's Solana Integration
 
-[!image](https://user-images.githubusercontent.com/12705423/82140031-d4061800-9856-11ea-9cdc-3f32aa51e19f.png)
+![image](https://user-images.githubusercontent.com/12705423/82140031-d4061800-9856-11ea-9cdc-3f32aa51e19f.png)
 
 Band Protocol is a secure, blockchain-agnostic, decentralized oracle ([more detail here](https://docs.bandprotocol.com)). It features a blockchain of its own (BandChain) that does the heavy-lifting job of pulling data from external sources, aggregating all the results, and creating a verifiable proof of data integrity to be used in other blockchain applications -- all with a secure crypto-economic guarantee for the data correctness and availability.
 
