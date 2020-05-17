@@ -18,7 +18,9 @@ In this repository we've implemented a PoC of the integration of Band Protocol i
 
 ## How Band Protocol Works with Solana
 
-image
+![image](https://user-images.githubusercontent.com/12705423/82143306-15a1bd80-986d-11ea-8afa-7c865d85b7ff.png)
+
+![image](https://user-images.githubusercontent.com/12705423/82143307-1a667180-986d-11ea-9b33-649336111f3f.png)
 
 1. The frontend of decentralized application (dApp) sends a request to BandChain and specify the Data Oracle Script it needs to make a query to.
 2. The Data Oracle Script contains information that BandChain validator nodes needs to fetch the data, such as data sources, aggregation method, and the cost associated with the query
