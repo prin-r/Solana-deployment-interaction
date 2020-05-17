@@ -12,6 +12,7 @@ pub struct Price {
     px: u64,
 }
 
+// TODO: PriceDBKeeper should have more than just price. This account should also store other information such as symbol of the asset, oracle script ID, latest time price reports, etc.
 #[repr(C)]
 #[derive(Clone, Debug, PartialEq, BorshSerialize, BorshDeserialize)]
 pub enum PriceDBKeeper {
