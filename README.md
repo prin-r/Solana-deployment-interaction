@@ -337,6 +337,17 @@ process_instruction(&program_id, &accounts, &(vec![0, 99, 0, 0, 0, 0, 0, 0, 0]))
 
 The client then constructs and sends a verify and set price transaction to the program by calling [`VerifyAndSetPrice`](https://github.com/bandprotocol/band-integrations/blob/master/solana/blob/master/src/client/pricedb.js#L252). This function will receive PriceDB's program id, account of price keeper, account of validators keeper and bytes instructions. The bytes instruction is a borsh encode of [`VerifyAndSetPrice(Vec<u8>)`](https://github.com/bandprotocol/band-integrations/blob/master/solana/src/program-rust/src/lib.rs#L73)
 
+For the realtime price data, please request the data from [`our scan`](http://scan-solana.surge.sh/oracle-script/1) by following these steps.
+
+1. Click `connect` button at the top-right of the page
+2. Enter your mnemonic and then click connect
+3. Click `get 10 testnet BAND` at the top-right
+4. Insert symbol `BTC` and mutiplier `100`
+5. Click `request` button
+6. Wait until you see `PROOF OF VALIDITY`
+7. Click `copy as bytes`
+8. Replace this [`line`](https://github.com/bandprotocol/band-integrations/blob/master/solana/src/client/pricedb.js#L267) with what you just copied
+
 For example
 
 javascript client
