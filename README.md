@@ -324,7 +324,7 @@ For the realtime price data, please request the data from [`our scan`](http://sc
 
 ![image](https://user-images.githubusercontent.com/12705423/82214480-1a837180-9940-11ea-9272-38fcecbbef88.png)
 
-2. Enter your mnemonic and then click connect
+2. Enter your mnemonic and then click `connect` button on the modal that pops up
 
 ![image](https://user-images.githubusercontent.com/12705423/82214482-1b1c0800-9940-11ea-9cf3-073c65cb1859.png)
 
