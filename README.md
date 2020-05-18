@@ -295,7 +295,7 @@ process_instruction(
 
 ### Send a set price tx
 
-The client then constructs and sends a set price transaction to the program by calling [`setPrice`](https://github.com/bandprotocol/band-integration-solana/blob/master/src/client/main.js#L29). This function will receive PriceDB's program id, account of price keeper and bytes instructions. The bytes instruction is a borsh encode of [`SetPrice(Price)`](https://github.com/bandprotocol/band-integration-solana/blob/master/src/program-rust/src/lib.rs#L65)
+The client then constructs and sends a set price transaction to the program by calling [`setPrice`](https://github.com/bandprotocol/band-integration-solana/blob/master/src/client/main.js#L29). This function will receive PriceDB's program id, account of price keeper and bytes instructions. The bytes instruction is a borsh encode of [`SetPrice(Price)`](https://github.com/bandprotocol/band-integration-solana/blob/master/src/program-rust/src/lib.rs#L66)
 
 For example
 
