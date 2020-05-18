@@ -246,17 +246,17 @@ The client in this example is written in JavaScript using:
 
 ### Entrypoint
 
-The [client's entrypoint](https://github.com/bandprotocol/band-integrations/blob/master/solana/blob/master/src/client/main.js#L14) does four things
+The [client's entrypoint](https://github.com/bandprotocol/band-integrations/blob/master/solana/blob/master/src/client/main.js#L16) does four things
 
 ### Establish a connection to the cluster
 
-The client establishes a connection with the client by calling [`establishConnection`](https://github.com/bandprotocol/band-integrations/blob/master/solana/blob/master/src/client/pricedb.js#L45).
+The client establishes a connection with the client by calling [`establishConnection`](https://github.com/bandprotocol/band-integrations/blob/master/solana/blob/master/src/client/main.js#L20).
 
 ### Load the pricedb on-chain program if not already loaded
 
 The process of loading a program on the cluster includes storing the shared object's bytes in a Solana account's data vector and marking the account executable.
 
-The client loads the program by calling [`loadProgram`](https://github.com/bandprotocol/band-integrations/blob/master/solana/blob/master/src/client/pricedb.js#L54). The first time `loadProgram` is called the client:
+The client loads the program by calling [`loadProgram`](https://github.com/bandprotocol/band-integrations/blob/master/solana/blob/master/src/client/main.js#L26). The first time `loadProgram` is called the client:
 
 1. Read the shared object from the file system
 2. Calculates the fees associated with loading the program
@@ -268,7 +268,7 @@ The client loads the program by calling [`loadProgram`](https://github.com/bandp
 
 ### Send a set validators tx
 
-The client then constructs and sends a set validators transaction to the program by calling [`setValidator`](https://github.com/bandprotocol/band-integrations/blob/master/solana/blob/master/src/client/pricedb.js#L230). This function will receive PriceDB's program id, account of validators keeper and bytes instructions. The bytes instruction is a borsh encode of [`Command::SetValidator(Vec<ValidatorPubkey>)`](https://github.com/bandprotocol/band-integrations/blob/master/solana/src/program-rust/src/lib.rs#L69)
+The client then constructs and sends a set validators transaction to the program by calling [`setValidator`](https://github.com/bandprotocol/band-integrations/blob/master/solana/blob/master/src/client/main.js#L34). This function will receive PriceDB's program id, account of validators keeper and bytes instructions. The bytes instruction is a borsh encode of [`Command::SetValidator(Vec<ValidatorPubkey>)`](https://github.com/bandprotocol/band-integrations/blob/master/solana/src/program-rust/src/lib.rs#L69)
 
 For example
 
@@ -306,7 +306,7 @@ process_instruction(
 
 ### Send a set price tx
 
-The client then constructs and sends a set price transaction to the program by calling [`setPrice`](https://github.com/bandprotocol/band-integrations/blob/master/solana/blob/master/src/client/pricedb.js#L211). This function will receive PriceDB's program id, account of price keeper and bytes instructions. The bytes instruction is a borsh encode of [`SetPrice(Price)`](https://github.com/bandprotocol/band-integrations/blob/master/solana/src/program-rust/src/lib.rs#L66)
+The client then constructs and sends a set price transaction to the program by calling [`setPrice`](https://github.com/bandprotocol/band-integrations/blob/master/solana/blob/master/src/client/main.js#L29). This function will receive PriceDB's program id, account of price keeper and bytes instructions. The bytes instruction is a borsh encode of [`SetPrice(Price)`](https://github.com/bandprotocol/band-integrations/blob/master/solana/src/program-rust/src/lib.rs#L66)
 
 For example
 
@@ -335,7 +335,7 @@ process_instruction(&program_id, &accounts, &(vec![0, 99, 0, 0, 0, 0, 0, 0, 0]))
 
 ### Send a verify and set price tx
 
-The client then constructs and sends a verify and set price transaction to the program by calling [`VerifyAndSetPrice`](https://github.com/bandprotocol/band-integrations/blob/master/solana/blob/master/src/client/pricedb.js#L252). This function will receive PriceDB's program id, account of price keeper, account of validators keeper and bytes instructions. The bytes instruction is a borsh encode of [`VerifyAndSetPrice(Vec<u8>)`](https://github.com/bandprotocol/band-integrations/blob/master/solana/src/program-rust/src/lib.rs#L73)
+The client then constructs and sends a verify and set price transaction to the program by calling [`VerifyAndSetPrice`](https://github.com/bandprotocol/band-integrations/blob/master/solana/blob/master/src/client/main.js#L39). This function will receive PriceDB's program id, account of price keeper, account of validators keeper and bytes instructions. The bytes instruction is a borsh encode of [`VerifyAndSetPrice(Vec<u8>)`](https://github.com/bandprotocol/band-integrations/blob/master/solana/src/program-rust/src/lib.rs#L73)
 
 For the realtime price data, please request the data from [`our scan`](http://scan-solana.surge.sh/oracle-script/1) by following these steps.
 
@@ -346,7 +346,7 @@ For the realtime price data, please request the data from [`our scan`](http://sc
 5. Click `request` button
 6. Wait until you see `PROOF OF VALIDITY`
 7. Click `copy as bytes`
-8. Replace this [`line`](https://github.com/bandprotocol/band-integrations/blob/master/solana/src/client/pricedb.js#L267) with what you just copied
+8. Replace this [`line`](https://github.com/bandprotocol/band-integrations/blob/master/solana/src/client/main.js#L41) with what you just copied
 
 For example
 
