@@ -318,13 +318,28 @@ The client then constructs and sends a verify and set price transaction to the p
 
 For the realtime price data, please request the data from [`our scan`](http://scan-solana.surge.sh/oracle-script/1) by following these steps.
 
+![image](https://user-images.githubusercontent.com/12705423/82214472-16575400-9940-11ea-9952-728aadf3980a.png)
+
 1. Click `connect` button at the top-right of the page
+
+![image](https://user-images.githubusercontent.com/12705423/82214480-1a837180-9940-11ea-9272-38fcecbbef88.png)
+
 2. Enter your mnemonic and then click connect
+
+![image](https://user-images.githubusercontent.com/12705423/82214482-1b1c0800-9940-11ea-9cf3-073c65cb1859.png)
+
 3. Click `get 10 testnet BAND` at the top-right
 4. Insert symbol `BTC` and mutiplier `100`
 5. Click `request` button
+
+![image](https://user-images.githubusercontent.com/12705423/82214485-1c4d3500-9940-11ea-8d1f-f78052415cda.png)
+
 6. Wait until you see `PROOF OF VALIDITY`
+
+![image](https://user-images.githubusercontent.com/12705423/82214486-1ce5cb80-9940-11ea-8d24-e65c46163e7d.png)
+
 7. Click `copy as bytes`
+
 8. Replace this [`line`](https://github.com/bandprotocol/band-integration-solana/blob/master/src/client/main.js#L41) with what you just copied
 
 For example
