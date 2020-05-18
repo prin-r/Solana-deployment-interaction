@@ -275,20 +275,9 @@ For example
 javascript client
 
 ```js
-const instruction = new TransactionInstruction({
-  keys: [{ pubkey: vkPubkey, isSigner: false, isWritable: true }],
-  programId,
-  // Borsh encode of ValidatorKeeper that contain pubkeys [1;32] and [2;32]
-  data: Buffer.from(
-    "010200000001010101010101010101010101010101010101010101010101010101010101010202020202020202020202020202020202020202020202020202020202020202",
-    "hex"
-  ),
-});
-await sendAndConfirmTransaction(
-  "setValidator",
-  connection,
-  new Transaction().add(instruction),
-  payerAccount
+// Borsh encode of ValidatorKeeper that contain pubkeys [1;32] and [2;32]
+await setValidator(
+  "010200000001010101010101010101010101010101010101010101010101010101010101010202020202020202020202020202020202020202020202020202020202020202"
 );
 ```
 
@@ -313,18 +302,8 @@ For example
 javascript client
 
 ```js
-const instruction = new TransactionInstruction({
-  keys: [{ pubkey: pdbkPubkey, isSigner: false, isWritable: true }],
-  programId,
-  // Set price to be 99, encode with borsh
-  data: Buffer.from("006300000000000000", "hex"),
-});
-await sendAndConfirmTransaction(
-  "setPrice",
-  connection,
-  new Transaction().add(instruction),
-  payerAccount
-);
+// Set price to be 99, encode with borsh
+await setPrice("006300000000000000");
 ```
 
 rust program
@@ -353,23 +332,9 @@ For example
 javascript client
 
 ```js
-const instruction = new TransactionInstruction({
-  keys: [
-    { pubkey: pdbkPubkey, isSigner: false, isWritable: true },
-    { pubkey: vkPubkey, isSigner: false, isWritable: true },
-  ],
-  programId,
-  data: Buffer.from(
-    // [2;32] + 886270
-    "02680000000000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000058002020202020202020202020202020202020202020202020202020202020202026f360e0000000000",
-    "hex"
-  ),
-});
-await sendAndConfirmTransaction(
-  "VerifyAndSetPrice",
-  connection,
-  new Transaction().add(instruction),
-  payerAccount
+await verifyAndSetPrice(
+  // [2;32] + 886270
+  "02680000000000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000058002020202020202020202020202020202020202020202020202020202020202026f360e0000000000"
 );
 ```
 
