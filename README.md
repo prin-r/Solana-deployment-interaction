@@ -168,7 +168,7 @@ $ npm run cluster:localnet
 $ npm run start
 ```
 
-![image](https://user-images.githubusercontent.com/12705423/81507301-a1c05c00-9326-11ea-8841-c29aba19150e.png)
+![image](https://user-images.githubusercontent.com/12705423/82215489-b19cf900-9941-11ea-9d1c-90d6ab9ce2e2.png)
 
 ### All expected outputs
 
