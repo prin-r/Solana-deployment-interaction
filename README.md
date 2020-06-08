@@ -14,7 +14,7 @@ In this repository we've implemented a PoC of the integration of Band Protocol i
 - ✅ How to select, preview, and request oracle data from BandChain
 - ✅ How to implement a bridge that takes data and verifies data integrity from BandChain using band_bridge
 
-#### ⚠️ Warning: this repository serves strictly as a PoC implementation and example guide on how to use Band Protocol oracle in Solana stack. A more complete, production ready versions of the pallets are under development and will soon be updated here.
+#### ⚠️ Warning: this repository serves strictly as a PoC implementation and example guide on how to use Band Protocol oracle in Solana stack. A more complete, production ready versions of the Bridge contract are under development and will soon be updated here.
 
 ## How Band Protocol Works with Solana
 
