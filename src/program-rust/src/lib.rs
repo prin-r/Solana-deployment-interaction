@@ -1,30 +1,52 @@
+#![cfg(feature = "program")]
 use borsh::{BorshDeserialize, BorshSerialize};
-use sha3::{Digest, Sha3_256};
 use solana_sdk::{
-    account_info::AccountInfo, entrypoint, entrypoint::ProgramResult, info,
-    program_error::ProgramError, program_utils::next_account_info, pubkey::Pubkey,
+    account_info::{next_account_info, AccountInfo},
+    entrypoint,
+    entrypoint::ProgramResult,
+    info,
+    program_error::ProgramError,
+    pubkey::Pubkey,
 };
 use std::mem;
 
 #[repr(C)]
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, PartialEq)]
 pub struct Price {
+    symbol: [u8; 8],
     px: u64,
+    last_updated: u64,
+    request_id: u64,
 }
 
-// TODO: PriceDBKeeper should have more than just price. This account should also store other information such as symbol of the asset, oracle script ID, latest time price reports, etc.
-#[repr(C)]
-#[derive(Clone, Debug, PartialEq, BorshSerialize, BorshDeserialize)]
-pub enum PriceDBKeeper {
-    Unallocated(u64),
-    LatestPrice(Price),
+impl Price {
+    pub fn get_empty() -> Self {
+        Price {
+            symbol: [0u8; 8],
+            px: 0,
+            last_updated: 0,
+            request_id: 0,
+        }
+    }
+
+    pub fn get_empty_prices(size: u8) -> Vec<Price> {
+        (0..size).map(|_| Price::get_empty()).collect()
+    }
 }
+
+#[repr(C)]
+#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, PartialEq)]
+pub struct PriceDBKeeper {
+    owner: [u8; 32],
+    prices: Vec<Price>,
+}
+
 impl PriceDBKeeper {
     pub fn serialize(self: &Self, output: &mut [u8]) -> ProgramResult {
         let x = self
             .try_to_vec()
             .map_err(|_| ProgramError::InvalidAccountData)?;
-        if x.len() != mem::size_of_val(output) {
+        if x.len() > mem::size_of_val(output) {
             return Err(ProgramError::InvalidAccountData);
         }
         for i in 0..x.len() {
@@ -32,29 +54,16 @@ impl PriceDBKeeper {
         }
         Ok(())
     }
-}
 
-#[repr(C)]
-#[derive(Clone, Debug, PartialEq, BorshSerialize, BorshDeserialize)]
-pub struct ValidatorPubkey([u8; 32]);
+    pub fn new(prices: Vec<Price>, owner: [u8; 32]) -> Self {
+        PriceDBKeeper { prices, owner }
+    }
 
-#[repr(C)]
-#[derive(Clone, Debug, PartialEq, BorshSerialize, BorshDeserialize)]
-pub enum ValidatorKeeper {
-    Validators(Vec<ValidatorPubkey>),
-}
-impl ValidatorKeeper {
-    pub fn serialize(self: &Self, output: &mut [u8]) -> ProgramResult {
-        let x = self
-            .try_to_vec()
-            .map_err(|_| ProgramError::InvalidAccountData)?;
-        if x.len() != mem::size_of_val(output) {
-            return Err(ProgramError::InvalidAccountData);
+    pub fn get_empty(size: u8) -> Self {
+        PriceDBKeeper {
+            owner: [0; 32],
+            prices: Price::get_empty_prices(size),
         }
-        for i in 0..x.len() {
-            output[i] = x[i];
-        }
-        Ok(())
     }
 }
 
@@ -63,14 +72,13 @@ impl ValidatorKeeper {
 #[derive(Clone, Debug, PartialEq, BorshSerialize, BorshDeserialize)]
 pub enum Command {
     // account 0: PriceDBKeeper account
-    SetPrice(Price),
+    Init(u8, [u8; 32]),
+    SetOwner([u8; 32]),
+    SetPrice(Vec<Price>),
+}
 
-    // account 0: ValidatorKeeper account
-    SetValidator(Vec<ValidatorPubkey>),
-
-    // account 0: PriceDBKeeper account
-    // account 1: ValidatorKeeper account
-    VerifyAndSetPrice(Vec<u8>),
+fn is_initialized(arr: &Vec<u8>) -> bool {
+    arr.iter().fold(0u32, |s, &x| s + (x as u32)) > 0
 }
 
 // Declare and export the program's entrypoint
@@ -84,82 +92,118 @@ fn process_instruction<'a>(
 ) -> ProgramResult {
     info!("Begin pricedb Rust program entrypoint");
 
-    let command =
-        Command::try_from_slice(instruction_data).map_err(|_| ProgramError::CustomError(999))?;
+    let command = Command::try_from_slice(instruction_data)
+        .map_err(|_| ProgramError::InvalidInstructionData)?;
     let account_info_iter = &mut accounts.iter();
 
     match command {
-        Command::SetPrice(price) => {
+        Command::Init(size, owner) => {
+            info!("Init!");
+            let pdbk_account = next_account_info(account_info_iter)?;
+            let mut data = pdbk_account.try_borrow_mut_data()?;
+            let temp = (*data).to_vec();
+            if is_initialized(&temp) {
+                Err(ProgramError::AccountAlreadyInitialized)
+            } else {
+                match PriceDBKeeper::try_from_slice(&temp) {
+                    Ok(_) => Err(ProgramError::InvalidArgument),
+                    Err(_) => {
+                        let mut pdbk = PriceDBKeeper::get_empty(size);
+                        pdbk.owner = owner;
+                        pdbk.serialize(&mut data)?;
+                        Ok(())
+                    }
+                }
+            }
+        }
+        Command::SetOwner(new_owner) => {
+            info!("SetOwner!");
+            let pdbk_account = next_account_info(account_info_iter)?;
+            let sender = next_account_info(account_info_iter)?;
+            if !sender.is_signer {
+                return Err(ProgramError::MissingRequiredSignature);
+            }
+
+            let mut data = pdbk_account.try_borrow_mut_data()?;
+            let temp = (*data).to_vec();
+            if !is_initialized(&temp) {
+                return Err(ProgramError::UninitializedAccount);
+            }
+
+            match PriceDBKeeper::try_from_slice(&temp) {
+                Ok(PriceDBKeeper { prices, owner }) => {
+                    if owner != sender.key.to_bytes() {
+                        return Err(ProgramError::Custom(112));
+                    }
+
+                    let pdbk = PriceDBKeeper::new(prices, new_owner);
+                    pdbk.serialize(&mut data)?;
+
+                    Ok(())
+                }
+                Err(_) => Err(ProgramError::InvalidArgument),
+            }
+        }
+        Command::SetPrice(new_prices) => {
             info!("SetPrice!");
             let pdbk_account = next_account_info(account_info_iter)?;
-
-            // Size of Price after Borsh encode is 9
-            if pdbk_account.try_data_len()? < 9 {
-                info!("PriceDBKeeper account data length too small for enum+u64");
-                return Err(ProgramError::InvalidAccountData);
+            let sender = next_account_info(account_info_iter)?;
+            if !sender.is_signer {
+                return Err(ProgramError::MissingRequiredSignature);
             }
 
-            // Save new price to PriceDBKeeper account
             let mut data = pdbk_account.try_borrow_mut_data()?;
-            PriceDBKeeper::LatestPrice(price).serialize(&mut data)?;
-
-            Ok(())
-        }
-        Command::SetValidator(validators) => {
-            info!("SetValidators!");
-            let vk_account = next_account_info(account_info_iter)?;
-
-            // Size of Validators after Borsh encode is 5
-            if vk_account.try_data_len()? < 5 {
-                info!("ValidatorKeeper account data length too small for enum+u32");
-                return Err(ProgramError::InvalidAccountData);
+            let temp = (*data).to_vec();
+            if !is_initialized(&temp) {
+                return Err(ProgramError::UninitializedAccount);
             }
 
-            // Save new validators to ValidatorKeeper account
-            let mut data = vk_account.try_borrow_mut_data()?;
-            ValidatorKeeper::Validators(validators).serialize(&mut data)?;
+            let pdbk =
+                PriceDBKeeper::try_from_slice(&temp).map_err(|_| ProgramError::Custom(116))?;
 
-            Ok(())
-        }
-        Command::VerifyAndSetPrice(proof) => {
-            info!("VerifyAndSetPrice!");
-            let pdbk_account = next_account_info(account_info_iter)?;
-            let vk_account = next_account_info(account_info_iter)?;
+            // filter to get only none empty
+            let mut available_prices: Vec<Price> = pdbk
+                .prices
+                .iter()
+                .filter(|p| p.symbol != [0u8; 8])
+                .map(|p| Price {
+                    symbol: p.symbol,
+                    px: p.px,
+                    last_updated: p.last_updated,
+                    request_id: p.request_id,
+                })
+                .collect();
 
-            // Size of Price after Borsh encode is 9
-            if pdbk_account.try_data_len()? < 9 {
-                info!("PriceDBKeeper account data length too small for enum+u64");
-                return Err(ProgramError::InvalidAccountData);
-            }
-            // Size of Validators after Borsh encode is 5
-            if vk_account.try_data_len()? < 5 {
-                info!("ValidatorKeeper account data length too small for enum+u32");
-                return Err(ProgramError::InvalidAccountData);
-            }
-            if proof.len() < 32 + 8 {
-                info!("Proof should contain validator pubkey and Borsh encoded Price");
-                return Err(ProgramError::CustomError(998));
-            }
-
-            // TODO: replace this mock by the real verification
-            let packed_data = (&proof[proof.len() - 40..]).to_vec();
-            let vpubk = ValidatorPubkey::try_from_slice(&packed_data[..32])
-                .map_err(|_| ProgramError::InvalidAccountData)?;
-
-            let vk_data = vk_account.try_borrow_data()?;
-            let ValidatorKeeper::Validators(exist_validators) =
-                ValidatorKeeper::try_from_slice(*vk_data)
-                    .map_err(|_| ProgramError::InvalidAccountData)?;
-
-            if !exist_validators.iter().any(|pubk| pubk == &vpubk) {
-                return Err(ProgramError::CustomError(999));
+            // replace or push
+            for price in new_prices {
+                let mut replace = false;
+                for rate in available_prices.iter_mut() {
+                    if rate.symbol == price.symbol {
+                        replace = true;
+                        rate.px = price.px;
+                        rate.last_updated = price.last_updated;
+                        rate.request_id = price.request_id;
+                        break;
+                    }
+                }
+                if !replace {
+                    available_prices.push(price)
+                }
             }
 
-            let mut pdbk_data = pdbk_account.try_borrow_mut_data()?;
-            let price = Price::try_from_slice(&packed_data[32..])
-                .map_err(|_| ProgramError::InvalidAccountData)?;
-            PriceDBKeeper::LatestPrice(price).serialize(&mut pdbk_data)?;
+            // pad array at the end
+            if available_prices.len() < pdbk.prices.len() {
+                for _ in 0..(pdbk.prices.len() - available_prices.len()) {
+                    available_prices.push(Price::get_empty())
+                }
+            }
 
+            // size of prices must be the same
+            if available_prices.len() != pdbk.prices.len() {
+                return Err(ProgramError::Custom(115));
+            }
+
+            PriceDBKeeper::new(available_prices, pdbk.owner).serialize(&mut data)?;
             Ok(())
         }
     }
@@ -198,10 +242,7 @@ mod test {
 
         let accounts = vec![account];
 
-        assert_eq!(
-            PriceDBKeeper::try_from_slice(&accounts[0].data.borrow()).unwrap(),
-            PriceDBKeeper::Unallocated(0)
-        );
+        assert_eq!(PriceDBKeeper::try_from_slice(&accounts[0].data.borrow()).unwrap(),);
 
         process_instruction(&program_id, &accounts, &(vec![0, 10, 0, 0, 0, 0, 0, 0, 0])).unwrap();
         assert_eq!(
@@ -327,7 +368,7 @@ mod test {
                     .try_to_vec()
                     .unwrap(),
             ),
-            Err(ProgramError::CustomError(998))
+            Err(ProgramError::Custom(998))
         );
 
         let mut calldata2 = [0; 32].to_vec();
@@ -340,7 +381,7 @@ mod test {
                     .try_to_vec()
                     .unwrap(),
             ),
-            Err(ProgramError::CustomError(999))
+            Err(ProgramError::Custom(999))
         );
 
         let mut calldata3 = [2; 32].to_vec();
