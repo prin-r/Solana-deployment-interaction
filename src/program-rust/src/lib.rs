@@ -1,20 +1,18 @@
-#![cfg(feature = "program")]
 use borsh::{BorshDeserialize, BorshSerialize};
-use solana_sdk::{
+use solana_program::{
     account_info::{next_account_info, AccountInfo},
     entrypoint,
     entrypoint::ProgramResult,
-    info,
+    msg,
     program_error::ProgramError,
     pubkey::Pubkey,
 };
-use std::mem;
 
-#[repr(C)]
+
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, PartialEq)]
 pub struct Price {
     symbol: [u8; 8],
-    px: u64,
+    rate: u64,
     last_updated: u64,
     request_id: u64,
 }
@@ -23,7 +21,7 @@ impl Price {
     pub fn get_empty() -> Self {
         Price {
             symbol: [0u8; 8],
-            px: 0,
+            rate: 0,
             last_updated: 0,
             request_id: 0,
         }
@@ -34,47 +32,31 @@ impl Price {
     }
 }
 
-#[repr(C)]
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, PartialEq)]
 pub struct PriceDBKeeper {
     owner: [u8; 32],
+    current_size: u8,
     prices: Vec<Price>,
 }
 
 impl PriceDBKeeper {
-    pub fn serialize(self: &Self, output: &mut [u8]) -> ProgramResult {
-        let x = self
-            .try_to_vec()
-            .map_err(|_| ProgramError::InvalidAccountData)?;
-        if x.len() > mem::size_of_val(output) {
-            return Err(ProgramError::InvalidAccountData);
-        }
-        for i in 0..x.len() {
-            output[i] = x[i];
-        }
-        Ok(())
-    }
-
-    pub fn new(prices: Vec<Price>, owner: [u8; 32]) -> Self {
-        PriceDBKeeper { prices, owner }
-    }
-
     pub fn get_empty(size: u8) -> Self {
         PriceDBKeeper {
             owner: [0; 32],
+            current_size: 0,
             prices: Price::get_empty_prices(size),
         }
     }
 }
 
 /// Commands supported by the program
-#[repr(C)]
 #[derive(Clone, Debug, PartialEq, BorshSerialize, BorshDeserialize)]
 pub enum Command {
     // account 0: PriceDBKeeper account
     Init(u8, [u8; 32]),
-    SetOwner([u8; 32]),
-    SetPrice(Vec<Price>),
+    TransferOwnership([u8; 32]),
+    Relay(Vec<Price>),
+    Remove(Vec<[u8; 8]>),
 }
 
 fn is_initialized(arr: &Vec<u8>) -> bool {
@@ -90,7 +72,7 @@ fn process_instruction<'a>(
     accounts: &'a [AccountInfo<'a>], // The accounts to be interacted with
     instruction_data: &[u8], // borsh encoded of Command
 ) -> ProgramResult {
-    info!("Begin pricedb Rust program entrypoint");
+    msg!("Begin pricedb Rust program entrypoint");
 
     let command = Command::try_from_slice(instruction_data)
         .map_err(|_| ProgramError::InvalidInstructionData)?;
@@ -98,10 +80,9 @@ fn process_instruction<'a>(
 
     match command {
         Command::Init(size, owner) => {
-            info!("Init!");
+            msg!("Init!");
             let pdbk_account = next_account_info(account_info_iter)?;
-            let mut data = pdbk_account.try_borrow_mut_data()?;
-            let temp = (*data).to_vec();
+            let temp = (*pdbk_account.data.borrow()).to_vec();
             if is_initialized(&temp) {
                 Err(ProgramError::AccountAlreadyInitialized)
             } else {
@@ -110,100 +91,159 @@ fn process_instruction<'a>(
                     Err(_) => {
                         let mut pdbk = PriceDBKeeper::get_empty(size);
                         pdbk.owner = owner;
-                        pdbk.serialize(&mut data)?;
+                        pdbk.serialize(&mut &mut pdbk_account.data.borrow_mut()[..])?;
                         Ok(())
                     }
                 }
             }
         }
-        Command::SetOwner(new_owner) => {
-            info!("SetOwner!");
+        Command::TransferOwnership(new_owner) => {
+            msg!("TransferOwnership!");
             let pdbk_account = next_account_info(account_info_iter)?;
             let sender = next_account_info(account_info_iter)?;
             if !sender.is_signer {
                 return Err(ProgramError::MissingRequiredSignature);
             }
 
-            let mut data = pdbk_account.try_borrow_mut_data()?;
-            let temp = (*data).to_vec();
+            let temp = (*pdbk_account.data.borrow()).to_vec();
             if !is_initialized(&temp) {
                 return Err(ProgramError::UninitializedAccount);
             }
 
-            match PriceDBKeeper::try_from_slice(&temp) {
-                Ok(PriceDBKeeper { prices, owner }) => {
-                    if owner != sender.key.to_bytes() {
-                        return Err(ProgramError::Custom(112));
-                    }
+            let mut pdbk = PriceDBKeeper::try_from_slice(&temp).map_err(|_| ProgramError::Custom(113))?;
 
-                    let pdbk = PriceDBKeeper::new(prices, new_owner);
-                    pdbk.serialize(&mut data)?;
-
-                    Ok(())
-                }
-                Err(_) => Err(ProgramError::InvalidArgument),
+            // check owner
+            if pdbk.owner != sender.key.to_bytes() {
+                return Err(ProgramError::Custom(112));
             }
+
+            // set owner
+            pdbk.owner = new_owner;
+            // save state
+            pdbk.serialize(&mut &mut pdbk_account.data.borrow_mut()[..])?;
+            Ok(())
         }
-        Command::SetPrice(new_prices) => {
-            info!("SetPrice!");
+        Command::Relay(prices) => {
+            msg!("Relay!");
             let pdbk_account = next_account_info(account_info_iter)?;
             let sender = next_account_info(account_info_iter)?;
             if !sender.is_signer {
                 return Err(ProgramError::MissingRequiredSignature);
             }
 
-            let mut data = pdbk_account.try_borrow_mut_data()?;
-            let temp = (*data).to_vec();
+            let temp = (*pdbk_account.data.borrow()).to_vec();
             if !is_initialized(&temp) {
                 return Err(ProgramError::UninitializedAccount);
             }
 
-            let pdbk =
-                PriceDBKeeper::try_from_slice(&temp).map_err(|_| ProgramError::Custom(116))?;
+            let mut pdbk =
+                PriceDBKeeper::try_from_slice(&temp).map_err(|_| ProgramError::Custom(113))?;
 
-            // filter to get only none empty
-            let mut available_prices: Vec<Price> = pdbk
-                .prices
-                .iter()
-                .filter(|p| p.symbol != [0u8; 8])
-                .map(|p| Price {
-                    symbol: p.symbol,
-                    px: p.px,
-                    last_updated: p.last_updated,
-                    request_id: p.request_id,
-                })
-                .collect();
+            // check owner
+            if pdbk.owner != sender.key.to_bytes() {
+                return Err(ProgramError::Custom(112));
+            }
 
-            // replace or push
-            for price in new_prices {
+            // create an array for new prices
+            let mut new_prices: Vec<Price> = vec![];
+
+            // replace or add the new one
+            for price in prices {
                 let mut replace = false;
-                for rate in available_prices.iter_mut() {
-                    if rate.symbol == price.symbol {
+                for current_price in pdbk.prices.iter_mut() {
+                    if current_price.symbol == price.symbol {
+                        current_price.rate = price.rate;
+                        current_price.last_updated = price.last_updated;
+                        current_price.request_id = price.request_id;
+
                         replace = true;
-                        rate.px = price.px;
-                        rate.last_updated = price.last_updated;
-                        rate.request_id = price.request_id;
+                        break;
+                    } else if current_price.symbol == [0u8; 8] {
                         break;
                     }
                 }
                 if !replace {
-                    available_prices.push(price)
+                    new_prices.push(price)
                 }
             }
+
+            let new_size = (pdbk.current_size as usize)+new_prices.len();
+            if new_size > pdbk.prices.len() {
+                // reach maximum size
+                return Err(ProgramError::Custom(114));
+            }
+
+            // append new prices
+            for j in 0..(new_size - (pdbk.current_size as usize)) {
+                if let Some(p) = pdbk.prices.get_mut(j + (pdbk.current_size as usize)) {
+                    p.symbol = new_prices[j].symbol;
+                    p.rate = new_prices[j].rate;
+                    p.last_updated = new_prices[j].last_updated;
+                    p.request_id = new_prices[j].request_id;
+                }
+            }
+
+            // change current_size to new_size
+            pdbk.current_size = new_size as u8;
+
+            // save state
+            pdbk.serialize(&mut &mut pdbk_account.data.borrow_mut()[..])?;
+            Ok(())
+        }
+        Command::Remove(symbols) => {
+            msg!("Remove!");
+            let pdbk_account = next_account_info(account_info_iter)?;
+            let sender = next_account_info(account_info_iter)?;
+            if !sender.is_signer {
+                return Err(ProgramError::MissingRequiredSignature);
+            }
+
+            let temp = (*pdbk_account.data.borrow()).to_vec();
+            if !is_initialized(&temp) {
+                return Err(ProgramError::UninitializedAccount);
+            }
+
+            let mut pdbk =
+                PriceDBKeeper::try_from_slice(&temp).map_err(|_| ProgramError::Custom(113))?;
+
+            // check owner
+            if pdbk.owner != sender.key.to_bytes() {
+                return Err(ProgramError::Custom(112));
+            }
+
+            msg!("max_len!");
+
+            // remove every symbol in symbols
+            let remain_prices: Vec<Price> = pdbk.prices.clone().into_iter().filter(
+                |p| (p.symbol != [0u8; 8]) && symbols.iter().all(|&s| s != p.symbol)
+            ).collect();
+
+            msg!("before pad!");
 
             // pad array at the end
-            if available_prices.len() < pdbk.prices.len() {
-                for _ in 0..(pdbk.prices.len() - available_prices.len()) {
-                    available_prices.push(Price::get_empty())
+            for (i, current_price) in pdbk.prices.iter_mut().enumerate() {
+                if i < remain_prices.len() {
+                    current_price.symbol = remain_prices[i].symbol;
+                    current_price.rate = remain_prices[i].rate;
+                    current_price.last_updated = remain_prices[i].last_updated;
+                    current_price.request_id = remain_prices[i].request_id;
+                } else {
+                    current_price.symbol = [0u8; 8];
+                    current_price.rate = 0;
+                    current_price.last_updated = 0;
+                    current_price.request_id = 0;
                 }
             }
 
-            // size of prices must be the same
-            if available_prices.len() != pdbk.prices.len() {
-                return Err(ProgramError::Custom(115));
-            }
+            msg!("after pad!");
 
-            PriceDBKeeper::new(available_prices, pdbk.owner).serialize(&mut data)?;
+            // set current size
+            pdbk.current_size = remain_prices.len() as u8;
+
+            msg!("current_size!");
+
+            // save state
+            pdbk.serialize(&mut &mut pdbk_account.data.borrow_mut()[..])?;
             Ok(())
         }
     }
@@ -222,186 +262,183 @@ mod test {
         ])
     }
 
-    #[test]
-    fn test_1() {
-        let program_id = new_pubkey(1);
-        let key = new_pubkey(2);
-        let mut lamports = 0;
-        let mut data = vec![0, 0, 0, 0, 0, 0, 0, 0, 0];
-        let owner = new_pubkey(3);
-        let account = AccountInfo::new(
-            &key,
-            false,
-            true,
-            &mut lamports,
-            &mut data,
-            &owner,
-            false,
-            Epoch::default(),
-        );
+    // #[test]
+    // fn test_1() {
+    //     let program_id = new_pubkey(1);
+    //     let key = new_pubkey(2);
+    //     let mut lamports = 0;
+    //     let mut data = vec![0, 0, 0, 0, 0, 0, 0, 0, 0];
+    //     let owner = new_pubkey(3);
+    //     let account = AccountInfo::new(
+    //         &key,
+    //         false,
+    //         true,
+    //         &mut lamports,
+    //         &mut data,
+    //         &owner,
+    //         false,
+    //         Epoch::default(),
+    //     );
 
-        let accounts = vec![account];
+    //     let accounts = vec![account];
 
-        assert_eq!(PriceDBKeeper::try_from_slice(&accounts[0].data.borrow()).unwrap(),);
+    //     assert_eq!(PriceDBKeeper::try_from_slice(&accounts[0].data.borrow()).unwrap(),);
 
-        process_instruction(&program_id, &accounts, &(vec![0, 10, 0, 0, 0, 0, 0, 0, 0])).unwrap();
-        assert_eq!(
-            PriceDBKeeper::try_from_slice(&accounts[0].data.borrow()).unwrap(),
-            PriceDBKeeper::LatestPrice(Price { px: 10 })
-        );
+    //     process_instruction(&program_id, &accounts, &(vec![0, 10, 0, 0, 0, 0, 0, 0, 0])).unwrap();
+    //     assert_eq!(
+    //         PriceDBKeeper::try_from_slice(&accounts[0].data.borrow()).unwrap(),
+    //         PriceDBKeeper::LatestPrice(Price { px: 10 })
+    //     );
 
-        process_instruction(&program_id, &accounts, &(vec![0, 99, 0, 0, 0, 0, 0, 0, 0])).unwrap();
-        assert_eq!(
-            PriceDBKeeper::try_from_slice(&accounts[0].data.borrow()).unwrap(),
-            PriceDBKeeper::LatestPrice(Price { px: 99 })
-        );
-    }
+    //     process_instruction(&program_id, &accounts, &(vec![0, 99, 0, 0, 0, 0, 0, 0, 0])).unwrap();
+    //     assert_eq!(
+    //         PriceDBKeeper::try_from_slice(&accounts[0].data.borrow()).unwrap(),
+    //         PriceDBKeeper::LatestPrice(Price { px: 99 })
+    //     );
+    // }
 
-    #[test]
-    fn test_2() {
-        let program_id = new_pubkey(1);
-        let key = new_pubkey(2);
-        let mut lamports = 0;
-        // contain 2 validators
-        let mut data =
-            ValidatorKeeper::Validators(vec![ValidatorPubkey([0; 32]), ValidatorPubkey([0; 32])])
-                .try_to_vec()
-                .unwrap();
-        let owner = new_pubkey(3);
-        let account = AccountInfo::new(
-            &key,
-            false,
-            true,
-            &mut lamports,
-            &mut data,
-            &owner,
-            false,
-            Epoch::default(),
-        );
+    // #[test]
+    // fn test_2() {
+    //     let program_id = new_pubkey(1);
+    //     let key = new_pubkey(2);
+    //     let mut lamports = 0;
+    //     // contain 2 validators
+    //     let mut data =
+    //         ValidatorKeeper::Validators(vec![ValidatorPubkey([0; 32]), ValidatorPubkey([0; 32])])
+    //             .try_to_vec()
+    //             .unwrap();
+    //     let owner = new_pubkey(3);
+    //     let account = AccountInfo::new(
+    //         &key,
+    //         false,
+    //         true,
+    //         &mut lamports,
+    //         &mut data,
+    //         &owner,
+    //         false,
+    //         Epoch::default(),
+    //     );
 
-        let accounts = vec![account];
+    //     let accounts = vec![account];
 
-        assert_eq!(
-            ValidatorKeeper::try_from_slice(&accounts[0].data.borrow()).unwrap(),
-            ValidatorKeeper::Validators(vec![ValidatorPubkey([0; 32]), ValidatorPubkey([0; 32])])
-        );
+    //     assert_eq!(
+    //         ValidatorKeeper::try_from_slice(&accounts[0].data.borrow()).unwrap(),
+    //         ValidatorKeeper::Validators(vec![ValidatorPubkey([0; 32]), ValidatorPubkey([0; 32])])
+    //     );
 
-        let mut pub1 = [0u8; 32];
-        let mut pub2 = [0u8; 32];
-        let mut tmp1 = Sha3_256::new();
-        let mut tmp2 = Sha3_256::new();
-        tmp1.input(b"abc");
-        tmp2.input(b"def");
+    //     let mut pub1 = [0u8; 32];
+    //     let mut pub2 = [0u8; 32];
+    //     let mut tmp1 = Sha3_256::new();
+    //     let mut tmp2 = Sha3_256::new();
+    //     tmp1.input(b"abc");
+    //     tmp2.input(b"def");
 
-        pub1.copy_from_slice(tmp1.result().as_slice());
-        pub2.copy_from_slice(tmp2.result().as_slice());
+    //     pub1.copy_from_slice(tmp1.result().as_slice());
+    //     pub2.copy_from_slice(tmp2.result().as_slice());
 
-        process_instruction(
-            &program_id,
-            &accounts,
-            &(Command::SetValidator(vec![ValidatorPubkey(pub1), ValidatorPubkey(pub2)]))
-                .try_to_vec()
-                .unwrap(),
-        )
-        .unwrap();
-        assert_eq!(
-            ValidatorKeeper::try_from_slice(&accounts[0].data.borrow()).unwrap(),
-            ValidatorKeeper::Validators(vec![ValidatorPubkey(pub1), ValidatorPubkey(pub2)])
-        );
-    }
+    //     process_instruction(
+    //         &program_id,
+    //         &accounts,
+    //         &(Command::SetValidator(vec![ValidatorPubkey(pub1), ValidatorPubkey(pub2)]))
+    //             .try_to_vec()
+    //             .unwrap(),
+    //     )
+    //     .unwrap();
+    //     assert_eq!(
+    //         ValidatorKeeper::try_from_slice(&accounts[0].data.borrow()).unwrap(),
+    //         ValidatorKeeper::Validators(vec![ValidatorPubkey(pub1), ValidatorPubkey(pub2)])
+    //     );
+    // }
 
-    #[test]
-    fn test_3() {
-        let program_id = new_pubkey(1);
-        let key1 = new_pubkey(2);
-        let mut lamports1 = 0;
-        // contain 2 validators
-        let mut data1 =
-            ValidatorKeeper::Validators(vec![ValidatorPubkey([1; 32]), ValidatorPubkey([2; 32])])
-                .try_to_vec()
-                .unwrap();
-        let owner1 = new_pubkey(3);
-        let vk_account = AccountInfo::new(
-            &key1,
-            false,
-            true,
-            &mut lamports1,
-            &mut data1,
-            &owner1,
-            false,
-            Epoch::default(),
-        );
+    // #[test]
+    // fn test_3() {
+    //     let program_id = new_pubkey(1);
+    //     let key1 = new_pubkey(2);
+    //     let mut lamports1 = 0;
+    //     // contain 2 validators
+    //     let mut data1 =
+    //         ValidatorKeeper::Validators(vec![ValidatorPubkey([1; 32]), ValidatorPubkey([2; 32])])
+    //             .try_to_vec()
+    //             .unwrap();
+    //     let owner1 = new_pubkey(3);
+    //     let vk_account = AccountInfo::new(
+    //         &key1,
+    //         false,
+    //         true,
+    //         &mut lamports1,
+    //         &mut data1,
+    //         &owner1,
+    //         false,
+    //         Epoch::default(),
+    //     );
 
-        let key2 = new_pubkey(4);
-        let mut lamports2 = 0;
-        let mut data2 = vec![0, 0, 0, 0, 0, 0, 0, 0, 0];
-        let owner2 = new_pubkey(5);
-        let pdbk_account = AccountInfo::new(
-            &key2,
-            false,
-            true,
-            &mut lamports2,
-            &mut data2,
-            &owner2,
-            false,
-            Epoch::default(),
-        );
+    //     let key2 = new_pubkey(4);
+    //     let mut lamports2 = 0;
+    //     let mut data2 = vec![0, 0, 0, 0, 0, 0, 0, 0, 0];
+    //     let owner2 = new_pubkey(5);
+    //     let pdbk_account = AccountInfo::new(
+    //         &key2,
+    //         false,
+    //         true,
+    //         &mut lamports2,
+    //         &mut data2,
+    //         &owner2,
+    //         false,
+    //         Epoch::default(),
+    //     );
 
-        let accounts = vec![pdbk_account, vk_account];
+    //     let accounts = vec![pdbk_account, vk_account];
 
-        assert_eq!(
-            PriceDBKeeper::try_from_slice(&accounts[0].data.borrow()).unwrap(),
-            PriceDBKeeper::Unallocated(0)
-        );
+    //     assert_eq!(
+    //         PriceDBKeeper::try_from_slice(&accounts[0].data.borrow()).unwrap(),
+    //         PriceDBKeeper::Unallocated(0)
+    //     );
 
-        assert_eq!(
-            ValidatorKeeper::try_from_slice(&accounts[1].data.borrow()).unwrap(),
-            ValidatorKeeper::Validators(vec![ValidatorPubkey([1; 32]), ValidatorPubkey([2; 32])])
-        );
+    //     assert_eq!(
+    //         ValidatorKeeper::try_from_slice(&accounts[1].data.borrow()).unwrap(),
+    //         ValidatorKeeper::Validators(vec![ValidatorPubkey([1; 32]), ValidatorPubkey([2; 32])])
+    //     );
 
-        let calldata1 = [0; 32].to_vec();
-        assert_eq!(
-            process_instruction(
-                &program_id,
-                &accounts,
-                &(Command::VerifyAndSetPrice(calldata1))
-                    .try_to_vec()
-                    .unwrap(),
-            ),
-            Err(ProgramError::Custom(998))
-        );
+    //     let calldata1 = [0; 32].to_vec();
+    //     assert_eq!(
+    //         process_instruction(
+    //             &program_id,
+    //             &accounts,
+    //             &(Command::VerifyAndSetPrice(calldata1))
+    //                 .try_to_vec()
+    //                 .unwrap(),
+    //         ),
+    //         Err(ProgramError::Custom(998))
+    //     );
 
-        let mut calldata2 = [0; 32].to_vec();
-        calldata2.append(&mut vec![254, 133, 13, 0, 0, 0, 0, 0]);
-        assert_eq!(
-            process_instruction(
-                &program_id,
-                &accounts,
-                &(Command::VerifyAndSetPrice(calldata2))
-                    .try_to_vec()
-                    .unwrap(),
-            ),
-            Err(ProgramError::Custom(999))
-        );
+    //     let mut calldata2 = [0; 32].to_vec();
+    //     calldata2.append(&mut vec![254, 133, 13, 0, 0, 0, 0, 0]);
+    //     assert_eq!(
+    //         process_instruction(
+    //             &program_id,
+    //             &accounts,
+    //             &(Command::VerifyAndSetPrice(calldata2))
+    //                 .try_to_vec()
+    //                 .unwrap(),
+    //         ),
+    //         Err(ProgramError::Custom(999))
+    //     );
 
-        let mut calldata3 = [2; 32].to_vec();
-        calldata3.append(&mut vec![254, 133, 13, 0, 0, 0, 0, 0]);
-        process_instruction(
-            &program_id,
-            &accounts,
-            &(Command::VerifyAndSetPrice(calldata3))
-                .try_to_vec()
-                .unwrap(),
-        )
-        .unwrap();
+    //     let mut calldata3 = [2; 32].to_vec();
+    //     calldata3.append(&mut vec![254, 133, 13, 0, 0, 0, 0, 0]);
+    //     process_instruction(
+    //         &program_id,
+    //         &accounts,
+    //         &(Command::VerifyAndSetPrice(calldata3))
+    //             .try_to_vec()
+    //             .unwrap(),
+    //     )
+    //     .unwrap();
 
-        assert_eq!(
-            PriceDBKeeper::try_from_slice(&accounts[0].data.borrow()).unwrap(),
-            PriceDBKeeper::LatestPrice(Price { px: 886270 })
-        );
-    }
+    //     assert_eq!(
+    //         PriceDBKeeper::try_from_slice(&accounts[0].data.borrow()).unwrap(),
+    //         PriceDBKeeper::LatestPrice(Price { px: 886270 })
+    //     );
+    // }
 }
 
-// Required to support info! in tests
-#[cfg(not(target_arch = "bpf"))]
-solana_sdk_bpf_test::stubs!();

@@ -7,13 +7,16 @@ import {
   establishPayer,
   loadProgram,
   initStdBasic,
-  setOwner,
-  setPrices,
+  transferOwnership,
+  relayPrices,
+  removePrices,
   reportHellos,
-} from "./std_basic";
+} from './std_basic';
+
+const sleep = async (ms: any) => new Promise(r => setTimeout(r, ms));
 
 async function main() {
-  console.log("Start script...");
+  console.log('Start script...');
 
   // Establish connection to the cluster
   await establishConnection();
@@ -22,15 +25,28 @@ async function main() {
   await establishPayer();
 
   // Load the program if not already loaded
-  // await loadProgram();
+  await loadProgram();
 
-  // init std basic account
+  // // sleep 5 secs
+  // await sleep(5000);
 
+  // // init std basic account
   // await initStdBasic();
 
-  // await setOwner();
+  // return;
 
-  await setPrices();
+  // set owner
+  // await transferOwnership();
+
+  // return;
+
+  // await relayPrices();
+
+  // return;
+
+  await removePrices();
+
+  return;
 
   // Find out how many times that account has been greeted
   await reportHellos();
@@ -40,8 +56,8 @@ async function main() {
 
 main().then(
   () => process.exit(),
-  (err) => {
+  err => {
     console.error(err);
     process.exit(-1);
-  }
+  },
 );
