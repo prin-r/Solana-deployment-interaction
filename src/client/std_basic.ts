@@ -53,16 +53,18 @@ const numPrices = 50;
 const stdBasicAccountDataLayout = BufferLayout.struct(
   [
     BufferLayout.blob(32, 'owner'),
-    BufferLayout.blob(1, 'current_size'),
-    BufferLayout.blob(4, 'len'),
-    Array(numPrices)
-      .fill(['symbol', 'px', 'last_updated', 'request_id'])
-      .map((e: Array<string>, i) =>
-        e.map((ee: string) => BufferLayout.blob(8, ee + (i + 1))),
-      ),
-  ]
-    .reduce((acc, val) => acc.concat(val), [])
-    .flat(),
+    BufferLayout.blob(8, 'latest_symbol'),
+    BufferLayout.blob(8, 'latest_price'),
+    // BufferLayout.blob(1, 'current_size'),
+    // BufferLayout.blob(4, 'len'),
+    // Array(numPrices)
+    //   .fill(['symbol', 'px', 'last_updated', 'request_id'])
+    //   .map((e: Array<string>, i) =>
+    //     e.map((ee: string) => BufferLayout.blob(8, ee + (i + 1))),
+    //   ),
+  ],
+  // .reduce((acc, val) => acc.concat(val), [])
+  // .flat(),
 );
 
 /**
@@ -223,11 +225,11 @@ export async function initStdBasic(): Promise<void> {
     keys: [{pubkey: stdPubkey, isSigner: false, isWritable: true}],
     programId,
     data: Buffer.from(
-      '00' + '32' + payerAccount.publicKey.toBuffer().toString('hex'),
+      '00' + payerAccount.publicKey.toBuffer().toString('hex'),
       'hex',
     ), // All instructions are hellos
   });
-  console.log('instruction:', instruction);
+  console.log('instruction:', instruction.data.toString('hex'));
   try {
     // const xx = await connection.simulateTransaction(
     //   new Transaction().add(instruction),
@@ -263,6 +265,7 @@ export async function transferOwnership(): Promise<void> {
   );
   console.log('>>>>>>>', payerAccount.publicKey.toBuffer().toString('hex'));
   console.log('------>', stdPubkey.toBuffer().toString('hex'));
+
   const instruction = new TransactionInstruction({
     keys: [
       {pubkey: stdPubkey, isSigner: false, isWritable: true},
@@ -270,7 +273,53 @@ export async function transferOwnership(): Promise<void> {
     ],
     programId,
     data: Buffer.from(
-      '01' + 'fa3dcdc78fb119eab365b643b5154b6567c7cbab6b71d181010758f6b59b0e8f', // payerAccount.publicKey.toBuffer().toString('hex'),
+      '02' + 'ffffffffffb119eab365b643b5154b6567c7cbab6b71d181010758ffffffffff', // payerAccount.publicKey.toBuffer().toString('hex'),
+      'hex',
+    ), // All instructions are hellos
+  });
+  await sendAndConfirmTransaction(
+    connection,
+    new Transaction().add(instruction),
+    [payerAccount],
+    {
+      commitment: 'singleGossip',
+      preflightCommitment: 'singleGossip',
+    },
+  );
+}
+
+/**
+ * Set Refs
+ */
+export async function setPrice(): Promise<void> {
+  console.log(
+    'set the latest price of simple price by payer ',
+    payerAccount.publicKey.toBase58(),
+  );
+  console.log('>>>>>>>', payerAccount.publicKey.toBuffer().toString('hex'));
+  console.log('------>', stdPubkey.toBuffer().toString('hex'));
+
+  console.log(
+    new PublicKey('GcSkynL9Emy5fPVnhR2rEJJjiXwGKGa4euSdPZEGRFHM')
+      .toBuffer()
+      .toString('hex'),
+  );
+
+  console.log('_+_+_+_+_+_+_+_+_+_+_+_+_');
+
+  const oraclePubkey = new PublicKey(
+    'GcSkynL9Emy5fPVnhR2rEJJjiXwGKGa4euSdPZEGRFHM',
+  );
+
+  const instruction = new TransactionInstruction({
+    keys: [
+      {pubkey: stdPubkey, isSigner: false, isWritable: true},
+      {pubkey: payerAccount.publicKey, isSigner: true, isWritable: true},
+      {pubkey: oraclePubkey, isSigner: false, isWritable: false},
+    ],
+    programId,
+    data: Buffer.from(
+      '02' + '4554480000000000', // payerAccount.publicKey.toBuffer().toString('hex'),
       'hex',
     ), // All instructions are hellos
   });
@@ -310,7 +359,7 @@ export async function relayPrices(): Promise<void> {
     ],
     programId,
     data: Buffer.from(
-      '020b00000042323000000000000100000000000000010000000000000001000000000000004232330000000000010000000000000001000000000000000100000000000000423231000000000001000000000000000100000000000000010000000000000042313800000000000100000000000000010000000000000001000000000000004232320000000000010000000000000001000000000000000100000000000000423139000000000001000000000000000100000000000000010000000000000042323500000000000100000000000000010000000000000001000000000000004231350000000000010000000000000001000000000000000100000000000000423136000000000001000000000000000100000000000000010000000000000042313700000000000100000000000000010000000000000001000000000000004232340000000000010000000000000001000000000000000100000000000000',
+      '02010000004554480000000000080000000000000008000000000000000800000000000000',
       'hex',
     ), // All instructions are hellos
   });

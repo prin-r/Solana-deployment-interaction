@@ -1,1 +1,6 @@
-{"url":"https://devnet.solana.com","programId":"DbLr7huJof2PcJ42uKKjpvPaAbZ9Rf63F39Af6LaeXKM","stdPubkey":"5qRUFcpAo16nM8KmGw2SCrRe2E9EqAKbYbbkzPsrA72b","payerSecretKey":"c112429e02fdfde7b6a15f75c110b8410772182b55d3741c93dab433d7ded1df83b01a476a16ab81afbfabc4c26d975f5991c2369dc31ba2f7734bc3862a677c"}
+{
+  "url": "https://devnet.solana.com",
+  "programId": "8quk86nFqUBTzNxhwqoBHgTkG6MYkw9nsWXuCqg1vQw9",
+  "stdPubkey": "5ZMhT6afgRs39ty1R2bLyoZBLuP7o3gsmrSYenaxHRNw",
+  "payerSecretKey": "6ef7336d6a4fe79c3047c2952a8c4ba09fd0b27a6eeb83b7346e8128336f05d793f96c4b21520210235119081aa7e520d33a799ddabd873fdf5f17f7b3b3ba98"
+}

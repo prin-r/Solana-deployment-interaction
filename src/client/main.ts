@@ -9,6 +9,7 @@ import {
   initStdBasic,
   transferOwnership,
   relayPrices,
+  setPrice,
   removePrices,
   reportHellos,
 } from './std_basic';
@@ -44,7 +45,7 @@ async function main() {
 
   // return;
 
-  await removePrices();
+  await setPrice();
 
   return;
 

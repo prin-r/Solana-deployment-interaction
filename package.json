@@ -17,8 +17,8 @@
     "bpf-sdk:update": "solana-bpf-sdk-install node_modules/@solana/web3.js && npm run clean",
     "clean": "npm run clean:program-c && npm run clean:program-rust",
     "clean:store": "rm -rf store",
-    "build:program-rust": "./src/program-rust/do.sh build && npm run clean:store",
-    "clean:program-rust": "./src/program-rust/do.sh clean && rm -rf ./dist && npm run clean:store",
+    "build:program-rust": "cargo build-bpf --manifest-path=./src/program-rust/Cargo.toml --bpf-out-dir=dist/program",
+    "clean:program-rust": "cargo clean --manifest-path=./src/program-rust/Cargo.toml && rm -rf ./dist",
     "test:program-rust": "./src/program-rust/do.sh test --features program",
     "cluster:localnet": "npm run clean:store && rm -f .env",
     "cluster:devnet": "npm run clean:store && cp cluster-devnet.env .env",
@@ -48,7 +48,7 @@
     "typescript": "^4.0.5"
   },
   "dependencies": {
-    "@solana/web3.js": "^0.80.2",
+    "@solana/web3.js": "^1.10.0",
     "buffer-layout": "^1.2.0",
     "dotenv": "8.2.0",
     "json-to-pretty-yaml": "^1.2.2",

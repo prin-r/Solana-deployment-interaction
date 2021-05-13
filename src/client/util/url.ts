@@ -2,7 +2,7 @@
 // environment. By default, `LIVE=1` will connect to the devnet cluster.
 
 import {clusterApiUrl, Cluster} from '@solana/web3.js';
-import dotenv from 'dotenv';
+const dotenv = require('dotenv');
 
 function chooseCluster(): Cluster | undefined {
   dotenv.config();
@@ -23,9 +23,9 @@ function chooseCluster(): Cluster | undefined {
 
 export const cluster = chooseCluster();
 
-export const url =
-  process.env.RPC_URL ||
-  (process.env.LIVE ? clusterApiUrl(cluster, false) : 'http://localhost:8899');
+export const url = 'https://devnet.solana.com';
+// process.env.RPC_URL ||
+// (process.env.LIVE ? clusterApiUrl(cluster, false) : 'http://localhost:8899');
 
 export const urlTls =
   process.env.RPC_URL ||
